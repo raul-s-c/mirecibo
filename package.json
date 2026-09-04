@@ -1,0 +1,47 @@
+{
+  "name": "mirecibo-app",
+  "private": true,
+  "version": "0.9.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "android:sync": "tsc -b && vite build --mode android && cap sync android",
+    "android:apk": "pnpm android:sync && cd android && gradlew.bat assembleDebug",
+    "worker:types": "wrangler types --config worker/wrangler.jsonc worker/worker-configuration.d.ts",
+    "worker:check": "tsc -p worker/tsconfig.json",
+    "worker:deploy": "wrangler deploy --config worker/wrangler.jsonc"
+  },
+  "dependencies": {
+    "@capacitor-community/speech-recognition": "latest",
+    "@capacitor/android": "latest",
+    "@capacitor/camera": "latest",
+    "@capacitor/core": "latest",
+    "@capacitor/haptics": "latest",
+    "@capacitor/preferences": "latest",
+    "@capacitor/share": "latest",
+    "@capacitor-mlkit/text-recognition": "latest",
+    "lucide-react": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "latest",
+    "@cloudflare/workers-types": "latest",
+    "@types/node": "latest",
+    "@testing-library/jest-dom": "latest",
+    "@testing-library/react": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "@vitejs/plugin-react": "latest",
+    "jsdom": "latest",
+    "typescript": "latest",
+    "vite": "latest",
+    "vite-plugin-pwa": "latest",
+    "vitest": "latest",
+    "wrangler": "latest"
+  },
+  "packageManager": "pnpm@11.19.0"
+}

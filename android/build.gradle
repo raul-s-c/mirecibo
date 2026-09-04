@@ -1,0 +1,39 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.13.0'
+        classpath 'com.google.gms:google-services:4.4.4'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+apply from: "variables.gradle"
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+// Capacitor links its plugins from node_modules. Without this override Gradle
+// writes generated .dex files inside those links, producing paths that OneDrive
+// cannot sync on Windows. Keep all regenerable plugin output under android/build.
+def workspaceNodeModules = rootProject.projectDir.parentFile.toPath().resolve("node_modules").normalize()
+subprojects { subproject ->
+    if (subproject.projectDir.toPath().normalize().startsWith(workspaceNodeModules)) {
+        subproject.layout.buildDirectory.set(rootProject.layout.buildDirectory.dir("external/${subproject.name}"))
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

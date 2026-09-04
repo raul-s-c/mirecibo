@@ -1,0 +1,77 @@
+[
+  {
+    "id": "plenergy-xirivella-fuel",
+    "requestedKind": "fuel",
+    "expected": {
+      "kind": "fuel",
+      "merchantContains": "plenergy",
+      "date": "2026-08-31",
+      "time": "16:51",
+      "total": 16.82,
+      "tax": 2.92,
+      "itemCountRange": [0, 1],
+      "fuel": {
+        "fuelTypeContains": "95",
+        "liters": 10.79,
+        "pricePerLiter": 1.559
+      },
+      "mustNotUseAsTotal": [20, 13.9, 2.92, 21]
+    }
+  },
+  {
+    "id": "mercadona-picanya-grocery",
+    "requestedKind": "ticket",
+    "expected": {
+      "kind": "grocery",
+      "merchantContains": "mercadona",
+      "date": "2026-08-31",
+      "time": "18:03",
+      "total": 94.06,
+      "tax": 7.13,
+      "itemCount": 33,
+      "expectedItemNames": [
+        "lcasei fr pla pin co",
+        "leche entera p6",
+        "guisantes muy tierno",
+        "bebida almendras 0",
+        "leche cabra 1l",
+        "cortes p 6 x 1 5 l",
+        "kefir",
+        "bolsa plastico",
+        "100 integral",
+        "aceituna r ancha p3",
+        "copos de espelta 0",
+        "gofre chocolate",
+        "tortilla avena 6 un",
+        "pulguitas 6 unids",
+        "higos bandeja 400gr",
+        "jamon cocido 92",
+        "melon sapo partido",
+        "cortes 330ml",
+        "pistacho tost 0 sal",
+        "solomillo de pollo",
+        "chuleta aguja",
+        "esp verde fino",
+        "tomate cherry rama",
+        "pimiento trico",
+        "fresa",
+        "200 servil blancas",
+        "taquito de jamon",
+        "anchoa oliva pack 3",
+        "q semi cabra",
+        "rollo cocina gigante",
+        "salmon entero",
+        "langostino cocido",
+        "platano"
+      ],
+      "landmarkItems": [
+        { "nameContains": "leche entera", "quantity": 2, "unitPrice": 1.71, "total": 3.42 },
+        { "nameContains": "bolsa plastico", "quantity": 3, "unitPrice": 0.15, "total": 0.45 },
+        { "nameContains": "salmon entero", "quantity": 2.552, "unit": "kg", "unitPrice": 9.95, "total": 25.39 },
+        { "nameContains": "langostino cocido", "quantity": 0.394, "unit": "kg", "unitPrice": 10.95, "total": 4.31 },
+        { "nameContains": "platano", "quantity": 0.602, "unit": "kg", "unitPrice": 2.3, "total": 1.38 }
+      ],
+      "forbiddenItemNames": ["iva", "base imponible", "cuota", "total", "tarjeta bancaria", "pescado"]
+    }
+  }
+]
