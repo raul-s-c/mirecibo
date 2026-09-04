@@ -41,6 +41,8 @@ El APK se genera en `android/app/build/outputs/apk/debug/app-debug.apk`.
 
 Las versiones instalables se publican en [GitHub Releases](https://github.com/raul-s-c/mirecibo/releases). Desde **Ajustes → Actualizaciones**, la aplicación consulta la última versión, descarga el APK en su almacenamiento privado y abre el instalador de Android. El sistema puede solicitar una vez autorización para instalar desde MiRecibo.
 
+Las siguientes publicaciones están automatizadas: al subir una etiqueta `vX.Y.Z`, GitHub ejecuta las pruebas, compila una APK sin credenciales embebidas y la adjunta a la versión para que el actualizador pueda encontrarla.
+
 ## Servicio de IA
 
 El backend seguro está en `worker/`. La clave de OpenAI se guarda como secreto de Cloudflare y nunca se incluye en el APK. Consulta [worker/README.md](worker/README.md) para configurarlo y desplegarlo.
