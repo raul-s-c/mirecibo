@@ -1,6 +1,6 @@
 import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { AddFlow } from './components/AddFlow';
+import { AddFlow, type AddFlowName } from './components/AddFlow';
 import { AppHeader, BottomNav } from './components/AppShell';
 import { AlertsScreen } from './screens/AlertsScreen';
 import { AnalysisScreen } from './screens/AnalysisScreen';
@@ -24,12 +24,12 @@ const meta: Record<AppPage, { title: string; subtitle?: string }> = {
 export function App() {
   const [page, setPage] = useState<AppPage>('home');
   const [addOpen, setAddOpen] = useState(false);
-  const [addInitial, setAddInitial] = useState<'menu' | 'products' | 'generate-list' | 'ticket' | 'fuel'>('menu');
-  const openAdd = (flow: 'menu' | 'products' | 'generate-list' | 'ticket' | 'fuel' = 'menu') => { setAddInitial(flow); setAddOpen(true); };
+  const [addInitial, setAddInitial] = useState<AddFlowName>('menu');
+  const openAdd = (flow: AddFlowName = 'menu') => { setAddInitial(flow); setAddOpen(true); };
   const screen = useMemo(() => {
     if (page === 'home') return <HomeScreen onNavigate={setPage} onAdd={() => openAdd()} onScan={() => openAdd('ticket')} />;
     if (page === 'list') return <ListScreen onAdd={() => openAdd('products')} onGenerate={() => openAdd('generate-list')} />;
-    if (page === 'tickets') return <TicketsScreen onScan={() => openAdd('ticket')} />;
+    if (page === 'tickets') return <TicketsScreen onScan={() => openAdd('ticket')} onManual={() => openAdd('manual-ticket')} />;
     if (page === 'fuel') return <FuelScreen onAdd={() => openAdd('fuel')} />;
     if (page === 'analysis') return <AnalysisScreen />;
     if (page === 'alerts') return <AlertsScreen />;

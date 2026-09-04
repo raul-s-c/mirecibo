@@ -1,6 +1,6 @@
 import { Capacitor, registerPlugin } from '@capacitor/core';
 
-export const CURRENT_VERSION = '0.9.0';
+export const CURRENT_VERSION = '0.9.1';
 const RELEASE_API = 'https://api.github.com/repos/raul-s-c/mirecibo/releases/latest';
 const NativeUpdater = registerPlugin<{ installApk(options: { url: string; fileName: string }): Promise<{ permissionRequired?: boolean }> }>('MiReciboUpdater');
 

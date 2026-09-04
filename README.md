@@ -11,6 +11,7 @@ Aplicación local-first para Android y web que reúne lista de compra, interpret
 - Auditoría de confianza, conciliación con el total y detección de tickets duplicados antes de guardar.
 - OCR local conservado únicamente como herramienta de respaldo y depuración.
 - Revisión editable de establecimiento, fecha, productos, cantidades, importes y total.
+- Registro manual de compras sin ticket físico, con establecimiento, fecha, importe, concepto y categoría.
 - Historial y detalle de tickets.
 - Repostajes asociados a vehículos.
 - Estadísticas por categoría y establecimiento.

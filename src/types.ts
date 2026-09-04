@@ -37,7 +37,7 @@ export interface Receipt {
   lines: ReceiptLine[];
   imageUri?: string;
   ocrText?: string;
-  analysisMethod?: 'ai-vision' | 'local-ocr';
+  analysisMethod?: 'ai-vision' | 'local-ocr' | 'manual';
   analysisWarnings?: string[];
   createdAt: string;
 }

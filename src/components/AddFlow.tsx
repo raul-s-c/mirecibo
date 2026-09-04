@@ -1,5 +1,5 @@
 import { Capacitor } from '@capacitor/core';
-import { AlertTriangle, Camera, Check, CheckCircle2, Fuel, Keyboard, Mic, Plus, ScanLine, Sparkles, Trash2 } from 'lucide-react';
+import { AlertTriangle, Camera, Check, CheckCircle2, FilePenLine, Fuel, Keyboard, Mic, Plus, ScanLine, Sparkles, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { captureReceipt } from '../services/capture';
 import { analyzeFuelImage, analyzeReceiptImage } from '../services/aiReceiptAnalyzer';
@@ -13,12 +13,13 @@ import type { NewShoppingItem, Receipt, Refuel } from '../types';
 import { money } from '../utils/format';
 import { Button, Field, Progress, Sheet } from './ui';
 import { AiListGenerator } from './AiListGenerator';
+import { ManualReceiptForm } from './ManualReceiptForm';
 
-type Flow = 'menu' | 'products' | 'generate-list' | 'ticket' | 'ticket-review' | 'fuel' | 'fuel-review';
+export type AddFlowName = 'menu' | 'products' | 'generate-list' | 'ticket' | 'manual-ticket' | 'ticket-review' | 'fuel' | 'fuel-review';
 
-export function AddFlow({ open, onClose, initial = 'menu' }: { open: boolean; onClose: () => void; initial?: Flow }) {
+export function AddFlow({ open, onClose, initial = 'menu' }: { open: boolean; onClose: () => void; initial?: AddFlowName }) {
   const { state, addItems, addReceipt, addRefuel } = useStore();
-  const [flow, setFlow] = useState<Flow>(initial);
+  const [flow, setFlow] = useState<AddFlowName>(initial);
   const [text, setText] = useState('');
   const [items, setItems] = useState<NewShoppingItem[]>([]);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
@@ -31,7 +32,7 @@ export function AddFlow({ open, onClose, initial = 'menu' }: { open: boolean; on
   const [duplicateOverride, setDuplicateOverride] = useState(false);
 
   const resetAndClose = () => { setFlow(initial); setText(''); setItems([]); setReceipt(null); setRefuel(null); setRawOcr(''); setBusy(false); setError(''); setDuplicateOverride(false); onClose(); };
-  const title = ({ menu: 'Añadir', products: 'Añadir productos', 'generate-list': 'Generar lista con IA', ticket: 'Escanear ticket', 'ticket-review': 'Revisar ticket', fuel: 'Añadir repostaje', 'fuel-review': 'Revisar repostaje' } as const)[flow];
+  const title = ({ menu: 'Añadir', products: 'Añadir productos', 'generate-list': 'Generar lista con IA', ticket: 'Escanear ticket', 'manual-ticket': 'Registrar compra manual', 'ticket-review': 'Revisar ticket', fuel: 'Añadir repostaje', 'fuel-review': 'Revisar repostaje' } as const)[flow];
 
   const interpretProducts = async (value = text) => {
     setBusy(true); setError('');
@@ -81,10 +82,12 @@ export function AddFlow({ open, onClose, initial = 'menu' }: { open: boolean; on
       <button onClick={() => setFlow('products')}><span className="option-icon green"><Mic /></span><span><b>Hablar o escribir</b><small>Añade varios productos a tu lista</small></span></button>
       <button className="ai-option" onClick={() => setFlow('generate-list')}><span className="option-icon violet"><Sparkles /></span><span><b>Generar lista con IA</b><small>Describe una receta o una tarea y revisa la propuesta</small></span></button>
       <button onClick={() => setFlow('ticket')}><span className="option-icon blue"><ScanLine /></span><span><b>Escanear ticket</b><small>Guarda productos, precios y total</small></span></button>
+      <button onClick={() => setFlow('manual-ticket')}><span className="option-icon green"><FilePenLine /></span><span><b>Registrar compra manual</b><small>Anota un gasto aunque no tengas el ticket</small></span></button>
       <button onClick={() => setFlow('fuel')}><span className="option-icon orange"><Fuel /></span><span><b>Repostaje</b><small>Registra combustible y vehículo</small></span></button>
     </div> : null}
 
     {flow === 'generate-list' ? <AiListGenerator onDone={resetAndClose} /> : null}
+    {flow === 'manual-ticket' ? <ManualReceiptForm onSave={value => { addReceipt(value); resetAndClose(); }} /> : null}
 
     {flow === 'products' ? <div className="product-add">
       <div className={`voice-orb ${busy ? 'listening' : ''}`}><Mic size={38} /></div><h3>{busy ? 'Separando productos…' : 'Dime lo que necesitas'}</h3><p>Puedes decirlos seguidos: “leche huevos tostadas y papel de cocina”.</p>

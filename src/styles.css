@@ -217,3 +217,5 @@ button, select { cursor: pointer; }
 .receipt-editor__numbers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .receipt-editor input, .receipt-editor select { width: 100%; min-width: 0; }
 .receipt-editor__actions { position: sticky; bottom: 0; background: white; padding: 12px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ticket-create-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.manual-receipt__intro { display: flex; gap: 12px; padding: 14px; border-radius: 14px; background: var(--green-pale); color: var(--green-dark); }.manual-receipt__intro > svg { flex: none; }.manual-receipt__intro h3 { margin: 0 0 4px; font-size: 15px; }.manual-receipt__intro p { margin: 0; font-size: 11px; line-height: 1.45; }
