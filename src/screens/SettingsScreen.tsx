@@ -1,39 +1,42 @@
-import { Download, MapPin, RefreshCw, RotateCcw, ShieldCheck, Sparkles, Upload } from 'lucide-react';
-import { Share } from '@capacitor/share';
-import { useRef, useState } from 'react';
+import { Download, MapPin, RefreshCw, RotateCcw, ShieldCheck, Sparkles, Undo2, Upload } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '../components/ui';
 import { isAiPreconfigured } from '../services/aiSettings';
 import { useStore } from '../store/StoreProvider';
-import type { AppState } from '../types';
 import { AiUsagePanel } from '../components/AiUsagePanel';
 import { compareVersions, CURRENT_VERSION, installRelease, latestRelease, type AppRelease } from '../services/appUpdater';
+import { clearRecoverySnapshot, exportSnapshot, hasRecoverySnapshot, loadRecoverySnapshot, parseSnapshot, saveRecoverySnapshot } from '../services/localSnapshot';
 
 export function SettingsScreen() {
   const { state, reset, setPostalCode, replaceState } = useStore();
   const [backupMessage, setBackupMessage] = useState('');
+  const [backupBusy, setBackupBusy] = useState(false);
+  const [recoveryAvailable, setRecoveryAvailable] = useState(false);
   const [updateMessage, setUpdateMessage] = useState('');
   const [release, setRelease] = useState<AppRelease | null>(null);
   const [updating, setUpdating] = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
+  useEffect(() => { void hasRecoverySnapshot().then(setRecoveryAvailable); }, []);
   const exportData = async () => {
-    const payload = JSON.stringify({ version: 2, exportedAt: new Date().toISOString(), state }, null, 2);
-    const file = new File([payload], `mirecibo-copia-${new Date().toISOString().slice(0, 10)}.json`, { type: 'application/json' });
-    if (navigator.canShare?.({ files: [file] })) await navigator.share({ title: 'Copia de MiRecibo', files: [file] });
-    else if (!navigator.share) {
-      const url = URL.createObjectURL(file); const link = document.createElement('a'); link.href = url; link.download = file.name; link.click(); URL.revokeObjectURL(url);
-    } else await Share.share({ title: 'Datos de MiRecibo', text: payload, dialogTitle: 'Exportar datos' });
-    setBackupMessage('Copia preparada correctamente.');
+    setBackupBusy(true); setBackupMessage('Preparando snapshot…');
+    try { const fileName = await exportSnapshot(state, CURRENT_VERSION); setBackupMessage(`${fileName} preparado. Guárdalo en Archivos, Drive o donde prefieras.`); }
+    catch { setBackupMessage('No se pudo guardar el snapshot. Inténtalo de nuevo.'); }
+    finally { setBackupBusy(false); }
   };
   const importData = async (file?: File) => {
     if (!file) return;
     try {
-      const parsed = JSON.parse(await file.text()) as { state?: AppState } | AppState;
-      const next = 'state' in parsed && parsed.state ? parsed.state : parsed as AppState;
-      if (!next || !Array.isArray(next.items) || !Array.isArray(next.receipts) || !Array.isArray(next.refuels) || !Array.isArray(next.vehicles)) throw new Error();
-      if (!confirm(`¿Restaurar esta copia con ${next.receipts.length} tickets y ${next.items.length} productos? Reemplazará los datos actuales.`)) return;
-      replaceState(next); setBackupMessage('Copia restaurada correctamente.');
-    } catch { setBackupMessage('El archivo no es una copia válida de MiRecibo.'); }
+      const snapshot = parseSnapshot(await file.text()); const next = snapshot.state;
+      if (!confirm(`¿Restaurar este snapshot con ${next.receipts.length} tickets, ${next.refuels.length} repostajes y ${next.items.length} productos? Antes guardaremos una copia de recuperación de tus datos actuales.`)) return;
+      await saveRecoverySnapshot(state, CURRENT_VERSION); replaceState(next); setRecoveryAvailable(true); setBackupMessage('Snapshot restaurado. Si algo no cuadra, puedes deshacer la restauración.');
+    } catch (error) { setBackupMessage(error instanceof Error ? error.message : 'El archivo no es un snapshot válido de MiRecibo.'); }
     finally { if (importRef.current) importRef.current.value = ''; }
+  };
+  const undoRestore = async () => {
+    const recovery = await loadRecoverySnapshot();
+    if (!recovery) { setBackupMessage('No hay una copia de recuperación disponible.'); return; }
+    if (!confirm('¿Deshacer la última restauración y recuperar los datos que tenías antes?')) return;
+    replaceState(recovery); await clearRecoverySnapshot(); setRecoveryAvailable(false); setBackupMessage('Datos anteriores recuperados correctamente.');
   };
   const checkUpdate = async () => {
     setUpdating(true); setUpdateMessage('Buscando la última versión…');
@@ -58,9 +61,8 @@ export function SettingsScreen() {
     <AiUsagePanel />
     <section className="ai-settings-card"><div className="settings-card-title"><RefreshCw /><div><h2>Actualizaciones</h2><p>Busca, descarga e instala nuevas versiones sin abrir el navegador.</p></div></div><div className="update-version"><span>Instalada</span><b>{CURRENT_VERSION}</b></div>{release && compareVersions(release.version, CURRENT_VERSION) > 0 ? <><div className="success-note">Versión {release.version} disponible</div><p className="update-notes">{release.notes}</p><Button className="button--wide" disabled={updating} onClick={() => void downloadUpdate()}><Download size={18} /> {updating ? 'Descargando…' : 'Descargar e instalar'}</Button></> : <Button variant="secondary" className="button--wide" disabled={updating} onClick={() => void checkUpdate()}><RefreshCw size={18} /> {updating ? 'Comprobando…' : 'Buscar actualizaciones'}</Button>}{updateMessage ? <p className="backup-message" role="status">{updateMessage}</p> : null}<small>Android puede pedir una vez permiso para instalar aplicaciones desde MiRecibo. Tus tickets y ajustes se conservan al actualizar.</small></section>
     <section className="ai-settings-card"><div className="settings-card-title"><MapPin /><div><h2>Zona de precios</h2><p>Sirve para ordenar y filtrar supermercados por distancia.</p></div></div><label>Código postal<input inputMode="numeric" maxLength={5} value={state.postalCode} onChange={event => setPostalCode(event.target.value.replace(/\D/g, ''))} placeholder="08812 o 46900" /></label><small>No limita las cadenas consultadas y no necesitas compartir tu dirección exacta.</small></section>
-    <section className="settings-group"><h2>Tus datos</h2><button onClick={exportData}><Download /><span><b>Exportar copia</b><small>Guarda un archivo JSON que podrás restaurar</small></span></button><button onClick={() => importRef.current?.click()}><Upload /><span><b>Restaurar una copia</b><small>Importa una copia exportada anteriormente</small></span></button><input ref={importRef} className="visually-hidden" type="file" accept="application/json,.json" onChange={event => void importData(event.target.files?.[0])} />{backupMessage ? <p className="backup-message" role="status">{backupMessage}</p> : null}<button className="danger-row" onClick={() => confirm('¿Eliminar todos los datos de la aplicación?') && reset()}><RotateCcw /><span><b>Borrar y empezar de nuevo</b><small>Esta acción no se puede deshacer</small></span></button></section>
+    <section className="settings-group"><h2>Snapshot local</h2><p className="snapshot-summary">Incluye {state.items.length} productos, {state.receipts.length} tickets, {state.refuels.length} repostajes, vehículos, alertas y preferencias. Nunca incluye claves ni fotografías.</p><button disabled={backupBusy} onClick={() => void exportData()}><Download /><span><b>{backupBusy ? 'Preparando snapshot…' : 'Exportar snapshot'}</b><small>Guarda toda tu base de datos local en un archivo JSON</small></span></button><button onClick={() => importRef.current?.click()}><Upload /><span><b>Importar snapshot</b><small>Restaura un archivo después de instalar o actualizar</small></span></button><input ref={importRef} className="visually-hidden" type="file" accept="application/json,.json" onChange={event => void importData(event.target.files?.[0])} />{recoveryAvailable ? <button onClick={() => void undoRestore()}><Undo2 /><span><b>Deshacer última restauración</b><small>Recupera automáticamente los datos que había antes</small></span></button> : null}{backupMessage ? <p className="backup-message" role="status">{backupMessage}</p> : null}<button className="danger-row" onClick={() => confirm('¿Eliminar todos los datos de la aplicación?') && reset()}><RotateCcw /><span><b>Borrar y empezar de nuevo</b><small>Esta acción no se puede deshacer</small></span></button></section>
     <section className="about"><b>MiRecibo</b><span>Versión {CURRENT_VERSION}</span><p>Lista inteligente, tickets, mapa comparativo, precios y repostajes.</p></section>
     <a className="button button--secondary button--wide" href="privacy.html" target="_blank" rel="noreferrer">Política de privacidad</a>
-    <Button variant="secondary" className="button--wide" onClick={exportData}>Exportar mis datos</Button>
   </div>;
 }

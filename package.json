@@ -1,7 +1,7 @@
 {
   "name": "mirecibo-app",
   "private": true,
-  "version": "0.9.1",
+  "version": "0.9.2",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,13 +16,14 @@
   },
   "dependencies": {
     "@capacitor-community/speech-recognition": "latest",
+    "@capacitor-mlkit/text-recognition": "latest",
     "@capacitor/android": "latest",
     "@capacitor/camera": "latest",
     "@capacitor/core": "latest",
+    "@capacitor/filesystem": "latest",
     "@capacitor/haptics": "latest",
     "@capacitor/preferences": "latest",
     "@capacitor/share": "latest",
-    "@capacitor-mlkit/text-recognition": "latest",
     "lucide-react": "latest",
     "react": "latest",
     "react-dom": "latest"
@@ -30,9 +31,9 @@
   "devDependencies": {
     "@capacitor/cli": "latest",
     "@cloudflare/workers-types": "latest",
-    "@types/node": "latest",
     "@testing-library/jest-dom": "latest",
     "@testing-library/react": "latest",
+    "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@vitejs/plugin-react": "latest",

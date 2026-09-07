@@ -17,6 +17,7 @@ Aplicación local-first para Android y web que reúne lista de compra, interpret
 - Estadísticas por categoría y establecimiento.
 - Alertas calculadas a partir de cambios en el precio unitario histórico.
 - Persistencia local versionada, funcionamiento como PWA y copias exportables/restaurables.
+- Snapshot completo de la base local, compatible con versiones anteriores y con recuperación previa a cada restauración.
 - Actualización integrada desde GitHub Releases sin abrir el navegador.
 
 ## Desarrollo
