@@ -4,8 +4,8 @@ import { generateShoppingList, type GeneratedList, type GeneratedListItem } from
 import { useStore } from '../store/StoreProvider';
 import type { Category } from '../types';
 import { Button, Field } from './ui';
+import { activeCategories } from '../services/categories';
 
-const categories: Category[] = ['Alimentación', 'Hogar', 'Higiene', 'Mascotas', 'Otros'];
 const units = ['ud.', 'g', 'kg', 'ml', 'L', 'paquete', 'bote', 'botella', 'caja', 'rollo', 'sobre'];
 type DraftItem = GeneratedListItem & { id: string; selected: boolean };
 type DraftList = Omit<GeneratedList, 'items'> & { items: DraftItem[] };
@@ -15,7 +15,8 @@ function withDraftItems(proposal: GeneratedList): DraftList {
 }
 
 export function AiListGenerator({ onDone }: { onDone: () => void }) {
-  const { addItems } = useStore();
+  const { state, addItems } = useStore();
+  const categories = activeCategories(state).map(value => value.name);
   const [request, setRequest] = useState('');
   const [proposal, setProposal] = useState<DraftList | null>(null);
   const [busy, setBusy] = useState(false);
@@ -48,7 +49,7 @@ export function AiListGenerator({ onDone }: { onDone: () => void }) {
       <button className="draft-check" aria-label={`${item.selected ? 'Excluir' : 'Incluir'} ${item.name}`} onClick={() => update(item.id, { selected: !item.selected })}>{item.selected ? <Check size={15} /> : null}</button>
       <div className="draft-fields">
         <input aria-label="Producto" value={item.name} onChange={event => update(item.id, { name: event.target.value })} />
-        <div><input aria-label={`Cantidad de ${item.name}`} type="number" min="0.01" step="0.01" value={item.quantity} onChange={event => update(item.id, { quantity: Number(event.target.value) })} /><select aria-label={`Unidad de ${item.name}`} value={item.unit} onChange={event => update(item.id, { unit: event.target.value })}>{[...new Set([...units, item.unit])].map(unit => <option key={unit}>{unit}</option>)}</select><select aria-label={`Categoría de ${item.name}`} value={item.category} onChange={event => update(item.id, { category: event.target.value as Category })}>{categories.map(category => <option key={category}>{category}</option>)}</select></div>
+        <div><input aria-label={`Cantidad de ${item.name}`} type="number" min="0.01" step="0.01" value={item.quantity} onChange={event => update(item.id, { quantity: Number(event.target.value) })} /><select aria-label={`Unidad de ${item.name}`} value={item.unit} onChange={event => update(item.id, { unit: event.target.value })}>{[...new Set([...units, item.unit])].map(unit => <option key={unit}>{unit}</option>)}</select><select aria-label={`Categoría de ${item.name}`} value={item.category} onChange={event => update(item.id, { category: event.target.value as Category })}>{[...new Set([...categories, item.category])].map(category => <option key={category}>{category}</option>)}</select></div>
         <input className="draft-note" aria-label={`Nota de ${item.name}`} value={item.note} onChange={event => update(item.id, { note: event.target.value })} placeholder="Nota opcional" />
       </div>
       <button className="draft-delete" aria-label={`Eliminar ${item.name}`} onClick={() => setProposal(current => current ? { ...current, items: current.items.filter(value => value.id !== item.id) } : current)}><Trash2 size={17} /></button>

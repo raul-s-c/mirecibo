@@ -3,9 +3,10 @@ import type { Category, Receipt, ReceiptLine } from '../types';
 import { Button, Field } from './ui';
 import { money } from '../utils/format';
 
-const categories: Category[] = ['Alimentación', 'Hogar', 'Higiene', 'Mascotas', 'Otros'];
+const defaultCategories = ['Alimentación', 'Hogar', 'Higiene', 'Mascotas', 'Otros'];
 
-export function ReceiptEditor({ receipt, onSave, onCancel }: { receipt: Receipt; onSave: (receipt: Receipt) => void; onCancel: () => void }) {
+export function ReceiptEditor({ receipt, categoryNames = defaultCategories, onSave, onCancel }: { receipt: Receipt; categoryNames?: string[]; onSave: (receipt: Receipt) => void; onCancel: () => void }) {
+  const categories = [...new Set([...categoryNames, ...receipt.lines.map(line => line.category)])];
   const [draft, setDraft] = useState<Receipt>(() => ({ ...receipt, lines: receipt.lines.map(line => ({ ...line })) }));
   const changeLine = (id: string, patch: Partial<ReceiptLine>) => setDraft(value => ({ ...value, lines: value.lines.map(line => line.id === id ? { ...line, ...patch } : line) }));
   const sum = draft.lines.reduce((value, line) => value + line.total, 0);

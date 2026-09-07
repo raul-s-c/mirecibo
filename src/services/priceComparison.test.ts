@@ -5,7 +5,7 @@ import type { AppState, PriceComparison } from '../types';
 describe('comparisonProducts', () => {
   it('une el historial exacto sin incluir impuestos ni descuentos', () => {
     const state = {
-      currency: 'EUR', postalCode: '46900', refuels: [], vehicles: [], alerts: [],
+      currency: 'EUR', postalCode: '46900', refuels: [], vehicles: [], alerts: [], categories: [], recurringExpenses: [],
       items: [{ id: 'i', name: 'Leche semidesnatada', quantity: 1, unit: 'L', category: 'Alimentación', completed: false, createdAt: '' }],
       receipts: [{ id: 'r', store: 'Mercadona', storeAddress: 'C/ Valencia, 29, 46210 Picanya', storeMunicipality: 'Picanya', date: '2026-08-31', total: 2, createdAt: '', lines: [
         { id: 'a', name: 'LECHE SEMIDESNATADA', quantity: 1, unit: 'L', unitPrice: 0.9, total: 0.9, category: 'Alimentación', confidence: 1, lineType: 'product' },

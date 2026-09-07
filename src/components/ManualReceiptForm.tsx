@@ -3,16 +3,19 @@ import { Check, ReceiptText } from 'lucide-react';
 import type { Category, Receipt } from '../types';
 import { createManualReceipt } from '../services/manualReceipt';
 import { Button, Field } from './ui';
+import { useStore } from '../store/StoreProvider';
+import { activeCategories } from '../services/categories';
 
-const categories: Category[] = ['Alimentación', 'Hogar', 'Higiene', 'Mascotas', 'Otros'];
 const today = () => { const date = new Date(); const offset = date.getTimezoneOffset() * 60_000; return new Date(date.getTime() - offset).toISOString().slice(0, 10); };
 
 export function ManualReceiptForm({ onSave }: { onSave: (receipt: Receipt) => void }) {
+  const { state } = useStore();
+  const categories = activeCategories(state).map(value => value.name);
   const [store, setStore] = useState('');
   const [date, setDate] = useState(today);
   const [total, setTotal] = useState('');
   const [concept, setConcept] = useState('');
-  const [category, setCategory] = useState<Category>('Alimentación');
+  const [category, setCategory] = useState<Category>(() => categories[0] ?? 'Otros');
   const amount = Number(total.replace(',', '.'));
   const valid = store.trim().length > 0 && date.length === 10 && Number.isFinite(amount) && amount > 0;
   return <form className="form-stack manual-receipt" onSubmit={event => { event.preventDefault(); if (valid) onSave(createManualReceipt({ store, date, total: amount, concept, category })); }}>

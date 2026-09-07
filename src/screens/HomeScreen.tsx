@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowRight, CalendarDays, ChevronLeft, ChevronRight, Fuel, ListChecks, ReceiptText, ScanLine, ShieldCheck } from 'lucide-react';
+import { ArrowDownRight, ArrowRight, CalendarClock, CalendarDays, ChevronLeft, ChevronRight, Fuel, ListChecks, ReceiptText, ScanLine, ShieldCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useStore } from '../store/StoreProvider';
 import type { AppPage } from '../types';
@@ -6,6 +6,7 @@ import { money, shortDate } from '../utils/format';
 import { Button, EmptyState, Segmented } from '../components/ui';
 import { expenseSummary, type ExpensePeriod } from '../utils/expensePeriod';
 import { monthKey, monthLabel, moveMonth } from '../utils/monthPeriod';
+import { dueReminderExpenses } from '../services/recurringExpenses';
 
 export function HomeScreen({ onNavigate, onAdd, onScan }: { onNavigate: (page: AppPage) => void; onAdd: () => void; onScan: () => void }) {
   const { state } = useStore();
@@ -17,6 +18,7 @@ export function HomeScreen({ onNavigate, onAdd, onScan }: { onNavigate: (page: A
   const summary = useMemo(() => expenseSummary(state, period, selectedMonth, year), [state.receipts, state.refuels, period, selectedMonth, year]);
   const recent = useMemo(() => [...state.receipts].sort((a, b) => `${b.date}${b.time ?? ''}`.localeCompare(`${a.date}${a.time ?? ''}`)).slice(0, 4), [state.receipts]);
   const pending = state.items.filter(item => !item.completed).length;
+  const recurringDue = dueReminderExpenses(state);
   const priceSavings = useMemo(() => {
     const last = new Map<string, number>();
     let saving = 0;
@@ -51,6 +53,7 @@ export function HomeScreen({ onNavigate, onAdd, onScan }: { onNavigate: (page: A
     </div>
     <Button className="button--wide add-main" onClick={onScan}><ScanLine size={20} /> Escanear ticket</Button>
     <button className="secondary-add" onClick={onAdd}>Añadir productos o repostaje</button>
+    {recurringDue.length ? <button className="recurring-home-alert" onClick={() => onNavigate('settings')}><CalendarClock /><span><b>{recurringDue.length} {recurringDue.length === 1 ? 'gasto periódico pendiente' : 'gastos periódicos pendientes'}</b><small>Revísalos antes de añadirlos a tus gastos.</small></span><ArrowRight /></button> : null}
     <section className="section-block"><div className="section-heading"><h2>Actividad reciente</h2>{recent.length ? <button onClick={() => onNavigate('tickets')}>Ver todo</button> : null}</div>
       {!recent.length ? <EmptyState icon={<ScanLine />} title="Empieza con tu primer ticket" text="Haz una foto y verificaremos productos, precios y total antes de guardarlo." action={<Button onClick={onScan}>Escanear el primero</Button>} /> : <div className="activity-list">
         {recent.map(receipt => <button key={receipt.id} onClick={() => onNavigate('tickets')}><span className="round-icon"><ReceiptText /></span><span><b>{receipt.store}</b><small>{shortDate(receipt.date)} · {receipt.lines.length} productos</small></span><strong>{money(receipt.total)}</strong><ArrowRight /></button>)}

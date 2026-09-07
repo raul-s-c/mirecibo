@@ -3,7 +3,7 @@ import type { AppState } from '../types';
 import { availableExpenseMonths, buildAnalyticsData } from './analytics';
 
 const state: AppState = {
-  currency: 'EUR', postalCode: '', alerts: [], items: [], vehicles: [],
+  currency: 'EUR', postalCode: '', alerts: [], items: [], vehicles: [], categories: [], recurringExpenses: [],
   receipts: [{ id: 'r1', store: 'Super', date: '2026-08-10', total: 5, createdAt: '', lines: [
     { id: 'l1', name: 'Leche', quantity: 2, unit: 'ud', unitPrice: 2, total: 4, category: 'Alimentación', confidence: 1 }
   ] }],

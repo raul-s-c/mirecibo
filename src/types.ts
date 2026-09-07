@@ -1,4 +1,4 @@
-export type Category = 'Alimentación' | 'Hogar' | 'Higiene' | 'Mascotas' | 'Otros';
+export type Category = string;
 export type AppPage = 'home' | 'list' | 'tickets' | 'fuel' | 'analysis' | 'alerts' | 'settings';
 
 export interface ShoppingItem {
@@ -72,6 +72,32 @@ export interface PriceAlert {
   followed: boolean;
 }
 
+export interface CategoryDefinition {
+  id: string;
+  name: string;
+  color: string;
+  archived: boolean;
+  builtin?: boolean;
+  aliases?: string[];
+}
+
+export type RecurringFrequency = 'weekly' | 'monthly' | 'yearly';
+export type RecurringMode = 'automatic' | 'reminder';
+
+export interface RecurringExpense {
+  id: string;
+  concept: string;
+  store: string;
+  amount: number;
+  category: Category;
+  frequency: RecurringFrequency;
+  nextDate: string;
+  dayOfPeriod?: number;
+  mode: RecurringMode;
+  active: boolean;
+  createdAt: string;
+}
+
 export interface PriceOffer {
   source: 'history' | 'mercadona' | 'consum' | 'esclat';
   store: string;
@@ -136,6 +162,8 @@ export interface AppState {
   refuels: Refuel[];
   vehicles: Vehicle[];
   alerts: PriceAlert[];
+  categories: CategoryDefinition[];
+  recurringExpenses: RecurringExpense[];
   postalCode: string;
   currency: 'EUR';
 }

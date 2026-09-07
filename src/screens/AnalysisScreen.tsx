@@ -5,8 +5,8 @@ import { availableExpenseMonths, buildAnalyticsData, type ExpenseCategory, type 
 import { useStore } from '../store/StoreProvider';
 import { money, percent, shortDate } from '../utils/format';
 import { monthLabel } from '../utils/monthPeriod';
+import { categoryColor } from '../services/categories';
 
-const COLORS: Record<ExpenseCategory, string> = { Alimentación: '#079455', Hogar: '#2e90fa', Higiene: '#7f56d9', Mascotas: '#f79009', Otros: '#667085', Combustible: '#e66b19' };
 type Drilldown = { type: 'all' | 'category' | 'store' | 'month' | 'product'; key: string; title: string };
 
 function AnalyticsDetailSheet({ selection, lines, onClose }: { selection: Drilldown | null; lines: ExpenseLine[]; onClose: () => void }) {
@@ -46,7 +46,8 @@ export function AnalysisScreen() {
 
   if (!state.receipts.length && !state.refuels.length) return <div className="screen"><EmptyState icon={<BarChart3 />} title="Tus análisis aparecerán aquí" text="Con cada ticket o repostaje construiremos el gasto por categoría, establecimiento y mes." /></div>;
   const chartTotal = data.category.reduce((sum, [, value]) => sum + value, 0);
-  const gradient = chartTotal && data.category.length ? `conic-gradient(${data.category.map(([name, value], index) => { const before = data.category.slice(0, index).reduce((sum, item) => sum + item[1], 0) / chartTotal * 100; const after = before + value / chartTotal * 100; return `${COLORS[name]} ${before}% ${after}%`; }).join(',')})` : '#eef2f6';
+  const colorFor = (name: ExpenseCategory) => name === 'Combustible' ? '#e66b19' : categoryColor(state.categories, name);
+  const gradient = chartTotal && data.category.length ? `conic-gradient(${data.category.map(([name, value], index) => { const before = data.category.slice(0, index).reduce((sum, item) => sum + item[1], 0) / chartTotal * 100; const after = before + value / chartTotal * 100; return `${colorFor(name)} ${before}% ${after}%`; }).join(',')})` : '#eef2f6';
   const maxMonth = Math.max(...data.months.map(item => item[1]), 1);
   const open = (type: Drilldown['type'], key: string, title: string) => setSelection({ type, key, title });
 
@@ -57,7 +58,7 @@ export function AnalysisScreen() {
     </div>
     <div className="kpi-grid"><div><span className="kpi-icon green"><WalletCards /></span><small>Gasto total</small><strong>{money(data.total)}</strong></div><div><span className="kpi-icon blue"><ReceiptText /></span><small>Documentos</small><strong>{data.documentCount}</strong></div><div><span className="kpi-icon purple"><ShoppingBag /></span><small>Conceptos</small><strong>{data.conceptCount.toLocaleString('es-ES')}</strong></div><div><span className="kpi-icon orange"><BarChart3 /></span><small>Gasto medio</small><strong>{money(data.documentCount ? data.total / data.documentCount : 0)}</strong></div></div>
     {data.total ? <>
-      <section className="analysis-panel"><div className="analysis-panel-title"><h2>Gasto por categoría</h2><small>Toca para ver los productos</small></div><div className="donut-wrap"><button className="donut" aria-label="Ver todos los gastos" onClick={() => open('all', '', 'Todos los gastos')} style={{ background: gradient }}><span><b>{money(data.total)}</b><small>Total</small></span></button><div className="legend">{data.category.map(([name, value]) => <button key={name} onClick={() => open('category', name, name)}><i style={{ background: COLORS[name] }} /><span>{name}</span><b>{money(value)}</b><small>{percent(value / data.total)}</small><ChevronRight size={15} /></button>)}</div></div></section>
+      <section className="analysis-panel"><div className="analysis-panel-title"><h2>Gasto por categoría</h2><small>Toca para ver los productos</small></div><div className="donut-wrap"><button className="donut" aria-label="Ver todos los gastos" onClick={() => open('all', '', 'Todos los gastos')} style={{ background: gradient }}><span><b>{money(data.total)}</b><small>Total</small></span></button><div className="legend">{data.category.map(([name, value]) => <button key={name} onClick={() => open('category', name, name)}><i style={{ background: colorFor(name) }} /><span>{name}</span><b>{money(value)}</b><small>{percent(value / data.total)}</small><ChevronRight size={15} /></button>)}</div></div></section>
       <section className="analysis-panel"><div className="analysis-panel-title"><h2>Gasto por establecimiento</h2><small>Toca para abrir sus facturas</small></div><div className="bar-list">{data.stores.map(([name, value]) => <button key={name} onClick={() => open('store', name, name)}><span>{name}</span><div><i style={{ width: `${value / data.stores[0][1] * 100}%` }} /></div><b>{money(value)}</b><small>{percent(value / data.total)}</small><ChevronRight size={15} /></button>)}</div></section>
       <div className="analysis-split">
         <section className="analysis-panel"><div className="analysis-panel-title"><h2>Evolución del gasto</h2><small>Toca un mes</small></div><div className="month-chart">{data.months.slice(-6).map(([valueMonth, value]) => <button key={valueMonth} onClick={() => open('month', valueMonth, monthLabel(valueMonth))}><span>{money(value)}</span><i style={{ height: `${Math.max(12, value / maxMonth * 100)}%` }} /><small>{new Intl.DateTimeFormat('es-ES', { month: 'short' }).format(new Date(`${valueMonth}-01T12:00:00`))}</small></button>)}</div></section>

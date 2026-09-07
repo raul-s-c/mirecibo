@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react';
 import { Segmented, EmptyState, Button, IconButton, Sheet, Field } from '../components/ui';
 import { useStore } from '../store/StoreProvider';
 import type { ShoppingItem } from '../types';
+import { activeCategories } from '../services/categories';
 
 export function ListScreen({ onAdd, onGenerate }: { onAdd: () => void; onGenerate: () => void }) {
   const { state, toggleItem, updateItem, deleteItem, clearItems } = useStore();
@@ -26,6 +27,7 @@ export function ListScreen({ onAdd, onGenerate }: { onAdd: () => void; onGenerat
     <Sheet open={Boolean(editing)} title="Editar producto" onClose={() => setEditing(null)}>{editing ? <form onSubmit={event => { event.preventDefault(); updateItem(editing); setEditing(null); }} className="form-stack">
       <Field label="Producto"><input value={editing.name} onChange={event => setEditing({ ...editing, name: event.target.value })} /></Field>
       <div className="field-grid"><Field label="Cantidad"><input type="number" min="0.01" step="0.01" value={editing.quantity} onChange={event => setEditing({ ...editing, quantity: Number(event.target.value) })} /></Field><Field label="Unidad"><select value={editing.unit} onChange={event => setEditing({ ...editing, unit: event.target.value })}><option>ud.</option><option>kg</option><option>g</option><option>L</option><option>paquete</option><option>cartón</option></select></Field></div>
+      <Field label="Categoría"><select value={editing.category} onChange={event => setEditing({ ...editing, category: event.target.value })}>{[...new Set([...activeCategories(state).map(value => value.name), editing.category])].map(category => <option key={category}>{category}</option>)}</select></Field>
       <Field label="Notas"><input value={editing.note ?? ''} onChange={event => setEditing({ ...editing, note: event.target.value })} placeholder="Marca, tamaño, variedad…" /></Field>
       <Button type="submit" className="button--wide">Guardar</Button><Button type="button" variant="danger" className="button--wide" onClick={() => { deleteItem(editing.id); setEditing(null); }}>Eliminar</Button>
     </form> : null}</Sheet>

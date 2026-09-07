@@ -1,4 +1,5 @@
 import type { AppState, Category, NewShoppingItem } from '../types';
+import { DEFAULT_CATEGORIES } from '../services/categories';
 
 export const uid = () => crypto.randomUUID();
 export const today = () => new Date().toISOString().slice(0, 10);
@@ -25,5 +26,7 @@ export const initialState: AppState = {
     { id: 'vehicle-car', name: 'Mi coche', description: 'Vehículo principal' },
     { id: 'vehicle-moto', name: 'Moto' }
   ],
-  alerts: []
+  alerts: [],
+  categories: DEFAULT_CATEGORIES,
+  recurringExpenses: []
 };
