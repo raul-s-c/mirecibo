@@ -9,7 +9,7 @@ const item = (id: string, name: string, quantity: number, unit: string): Shoppin
 });
 
 export const demoBasketState: AppState = {
-  currency: 'EUR', postalCode: '46900', alerts: [], categories: DEFAULT_CATEGORIES, recurringExpenses: [],
+  currency: 'EUR', postalCode: '46900', alerts: [], categories: DEFAULT_CATEGORIES, recurringExpenses: [], pantryItems: [], mealPlans: [],
   refuels: [
     { id: 'demo-fuel-aug', station: 'Plenergy Xirivella', date: '2026-08-31', fuelType: 'Gasolina 95', liters: 10.79, pricePerLiter: 1.559, total: 16.82, vehicleId: 'vehicle-car', odometer: 42587, tags: ['Ciudad'] },
     { id: 'demo-fuel-jul', station: 'Repsol Torrent', date: '2026-07-18', fuelType: 'Gasolina 95', liters: 24.5, pricePerLiter: 1.53, total: 37.49, vehicleId: 'vehicle-car', tags: ['Viaje'] }

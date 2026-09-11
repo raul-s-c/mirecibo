@@ -1,4 +1,4 @@
-import { BarChart3, Bell, Home, ListChecks, ReceiptText, Settings } from 'lucide-react';
+import { BarChart3, ChefHat, Home, ListChecks, ReceiptText, Settings } from 'lucide-react';
 import type { AppPage } from '../types';
 import { IconButton } from './ui';
 
@@ -11,7 +11,7 @@ const nav: Array<{ page: AppPage; label: string; icon: typeof Home }> = [
 ];
 
 export function AppHeader({ title, subtitle, page, onNavigate }: { title: string; subtitle?: string; page: AppPage; onNavigate: (page: AppPage) => void }) {
-  return <header className="app-header"><div><h1>{title}</h1>{subtitle ? <p>{subtitle}</p> : null}</div><div className="app-header__actions"><IconButton label="Alertas" onClick={() => onNavigate('alerts')} className={page === 'alerts' ? 'active' : ''}><Bell size={22} /></IconButton><IconButton label="Ajustes" onClick={() => onNavigate('settings')} className={page === 'settings' ? 'active' : ''}><Settings size={22} /></IconButton></div></header>;
+  return <header className="app-header"><div><h1>{title}</h1>{subtitle ? <p>{subtitle}</p> : null}</div><div className="app-header__actions"><IconButton label="Despensa y menús" onClick={() => onNavigate('pantry')} className={page === 'pantry' ? 'active' : ''}><ChefHat size={22} /></IconButton><IconButton label="Ajustes" onClick={() => onNavigate('settings')} className={page === 'settings' ? 'active' : ''}><Settings size={22} /></IconButton></div></header>;
 }
 
 export function BottomNav({ page, onNavigate }: { page: AppPage; onNavigate: (page: AppPage) => void }) {

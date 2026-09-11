@@ -1,6 +1,6 @@
 import { Preferences } from '@capacitor/preferences';
 
-export type AiUsageAction = 'receipt_scan' | 'fuel_scan' | 'voice_dictation' | 'generate_list' | 'price_comparison';
+export type AiUsageAction = 'receipt_scan' | 'fuel_scan' | 'voice_dictation' | 'generate_list' | 'meal_planning' | 'price_comparison';
 
 export interface AiUsageMeta {
   action: AiUsageAction;
@@ -86,5 +86,6 @@ export const usageActionLabel: Record<AiUsageAction, string> = {
   fuel_scan: 'Escanear repostaje',
   voice_dictation: 'Dictar productos',
   generate_list: 'Generar lista con IA',
+  meal_planning: 'Planificar menús',
   price_comparison: 'Comparar precios'
 };

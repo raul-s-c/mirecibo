@@ -3,10 +3,10 @@ import { Preferences } from '@capacitor/preferences';
 import { initialState, uid } from '../data/seed';
 import { demoBasketState, isBasketDemo } from '../data/basketDemo';
 import { advanceRecurringDate, processAutomaticExpenses, recurringReceipt } from '../services/recurringExpenses';
-import type { AppState, CategoryDefinition, NewShoppingItem, Receipt, RecurringExpense, Refuel, ShoppingItem, Vehicle } from '../types';
+import type { AppState, CategoryDefinition, MealPlan, NewShoppingItem, PantryItem, Receipt, RecurringExpense, Refuel, ShoppingItem, Vehicle } from '../types';
 
 const STORAGE_KEY = 'mirecibo-state-v1';
-const STORAGE_VERSION = 3;
+const STORAGE_VERSION = 4;
 
 interface StoredState { version: number; state: AppState }
 
@@ -14,7 +14,9 @@ const normalizeState = (candidate: Partial<AppState>): AppState => ({
   ...initialState,
   ...candidate,
   categories: Array.isArray(candidate.categories) && candidate.categories.length ? candidate.categories : initialState.categories,
-  recurringExpenses: Array.isArray(candidate.recurringExpenses) ? candidate.recurringExpenses : []
+  recurringExpenses: Array.isArray(candidate.recurringExpenses) ? candidate.recurringExpenses : [],
+  pantryItems: Array.isArray(candidate.pantryItems) ? candidate.pantryItems : [],
+  mealPlans: Array.isArray(candidate.mealPlans) ? candidate.mealPlans : []
 });
 
 const parseStoredState = (raw: string | null): AppState | null => {
@@ -53,6 +55,10 @@ type Action =
   | { type: 'confirm-recurring'; id: string }
   | { type: 'skip-recurring'; id: string }
   | { type: 'process-recurring' }
+  | { type: 'upsert-pantry-item'; item: Omit<PantryItem, 'id' | 'updatedAt'> & { id?: string } }
+  | { type: 'delete-pantry-item'; id: string }
+  | { type: 'add-meal-plan'; plan: MealPlan }
+  | { type: 'delete-meal-plan'; id: string }
   | { type: 'set-postal-code'; postalCode: string }
   | { type: 'hydrate'; state: AppState }
   | { type: 'reset' };
@@ -131,7 +137,9 @@ function reducer(state: AppState, action: Action): AppState {
         categories: state.categories.map(value => value.id === action.id ? { ...value, name: action.name, aliases: [...new Set([...(value.aliases ?? []), previous])] } : value),
         items: state.items.map(value => ({ ...value, category: replace(value.category) })),
         receipts: state.receipts.map(receipt => ({ ...receipt, lines: receipt.lines.map(line => ({ ...line, category: replace(line.category) })) })),
-        recurringExpenses: state.recurringExpenses.map(value => ({ ...value, category: replace(value.category) }))
+        recurringExpenses: state.recurringExpenses.map(value => ({ ...value, category: replace(value.category) })),
+        pantryItems: state.pantryItems.map(value => ({ ...value, category: replace(value.category) })),
+        mealPlans: state.mealPlans.map(plan => ({ ...plan, shoppingItems: plan.shoppingItems.map(value => ({ ...value, category: replace(value.category) })) }))
       };
       break;
     }
@@ -159,7 +167,9 @@ function reducer(state: AppState, action: Action): AppState {
         categories: state.categories.filter(value => value.id !== source.id).map(value => value.id === target.id ? { ...value, aliases: [...new Set([...(value.aliases ?? []), ...(source.aliases ?? []), source.name])] } : value),
         items: state.items.map(value => ({ ...value, category: replace(value.category) })),
         receipts: state.receipts.map(receipt => ({ ...receipt, lines: receipt.lines.map(line => ({ ...line, category: replace(line.category) })) })),
-        recurringExpenses: state.recurringExpenses.map(value => ({ ...value, category: replace(value.category) }))
+        recurringExpenses: state.recurringExpenses.map(value => ({ ...value, category: replace(value.category) })),
+        pantryItems: state.pantryItems.map(value => ({ ...value, category: replace(value.category) })),
+        mealPlans: state.mealPlans.map(plan => ({ ...plan, shoppingItems: plan.shoppingItems.map(value => ({ ...value, category: replace(value.category) })) }))
       };
       break;
     }
@@ -184,6 +194,27 @@ function reducer(state: AppState, action: Action): AppState {
       break;
     case 'process-recurring':
       next = processAutomaticExpenses(state);
+      break;
+    case 'upsert-pantry-item': {
+      const updatedAt = new Date().toISOString();
+      const normalizedName = action.item.name.trim().toLocaleLowerCase('es');
+      const existing = action.item.id
+        ? state.pantryItems.find(value => value.id === action.item.id)
+        : state.pantryItems.find(value => value.name.trim().toLocaleLowerCase('es') === normalizedName && value.unit === action.item.unit);
+      const item: PantryItem = { ...action.item, id: existing?.id ?? uid(), updatedAt };
+      next = { ...state, pantryItems: existing
+        ? state.pantryItems.map(value => value.id === existing.id ? item : value)
+        : [item, ...state.pantryItems] };
+      break;
+    }
+    case 'delete-pantry-item':
+      next = { ...state, pantryItems: state.pantryItems.filter(value => value.id !== action.id) };
+      break;
+    case 'add-meal-plan':
+      next = { ...state, mealPlans: [action.plan, ...state.mealPlans.filter(value => value.id !== action.plan.id)].slice(0, 12) };
+      break;
+    case 'delete-meal-plan':
+      next = { ...state, mealPlans: state.mealPlans.filter(value => value.id !== action.id) };
       break;
     case 'set-postal-code':
       next = { ...state, postalCode: action.postalCode };
@@ -221,6 +252,10 @@ interface StoreValue {
   deleteRecurringExpense: (id: string) => void;
   confirmRecurringExpense: (id: string) => void;
   skipRecurringExpense: (id: string) => void;
+  upsertPantryItem: (item: Omit<PantryItem, 'id' | 'updatedAt'> & { id?: string }) => void;
+  deletePantryItem: (id: string) => void;
+  addMealPlan: (plan: Omit<MealPlan, 'id' | 'createdAt'> & { id?: string }) => MealPlan;
+  deleteMealPlan: (id: string) => void;
   setPostalCode: (postalCode: string) => void;
   reset: () => void;
   replaceState: (state: AppState) => void;
@@ -272,10 +307,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const deleteRecurringExpense = useCallback((id: string) => dispatch({ type: 'delete-recurring', id }), []);
   const confirmRecurringExpense = useCallback((id: string) => dispatch({ type: 'confirm-recurring', id }), []);
   const skipRecurringExpense = useCallback((id: string) => dispatch({ type: 'skip-recurring', id }), []);
+  const upsertPantryItem = useCallback((item: Omit<PantryItem, 'id' | 'updatedAt'> & { id?: string }) => dispatch({ type: 'upsert-pantry-item', item }), []);
+  const deletePantryItem = useCallback((id: string) => dispatch({ type: 'delete-pantry-item', id }), []);
+  const addMealPlan = useCallback((plan: Omit<MealPlan, 'id' | 'createdAt'> & { id?: string }) => {
+    const value: MealPlan = { ...plan, id: plan.id ?? uid(), createdAt: new Date().toISOString() };
+    dispatch({ type: 'add-meal-plan', plan: value });
+    return value;
+  }, []);
+  const deleteMealPlan = useCallback((id: string) => dispatch({ type: 'delete-meal-plan', id }), []);
   const setPostalCode = useCallback((postalCode: string) => dispatch({ type: 'set-postal-code', postalCode }), []);
   const reset = useCallback(() => dispatch({ type: 'reset' }), []);
   const replaceState = useCallback((nextState: AppState) => dispatch({ type: 'hydrate', state: normalizeState(nextState) }), []);
-  const value = useMemo(() => ({ state, addItems, updateItem, deleteItem, clearItems, toggleItem, addReceipt, updateReceipt, deleteReceipt, addRefuel, deleteRefuel, addVehicle, addCategory, renameCategory, setCategoryColor, moveCategory, archiveCategory, mergeCategory, addRecurringExpense, updateRecurringExpense, deleteRecurringExpense, confirmRecurringExpense, skipRecurringExpense, setPostalCode, reset, replaceState }), [state, addItems, updateItem, deleteItem, clearItems, toggleItem, addReceipt, updateReceipt, deleteReceipt, addRefuel, deleteRefuel, addVehicle, addCategory, renameCategory, setCategoryColor, moveCategory, archiveCategory, mergeCategory, addRecurringExpense, updateRecurringExpense, deleteRecurringExpense, confirmRecurringExpense, skipRecurringExpense, setPostalCode, reset, replaceState]);
+  const value = useMemo(() => ({ state, addItems, updateItem, deleteItem, clearItems, toggleItem, addReceipt, updateReceipt, deleteReceipt, addRefuel, deleteRefuel, addVehicle, addCategory, renameCategory, setCategoryColor, moveCategory, archiveCategory, mergeCategory, addRecurringExpense, updateRecurringExpense, deleteRecurringExpense, confirmRecurringExpense, skipRecurringExpense, upsertPantryItem, deletePantryItem, addMealPlan, deleteMealPlan, setPostalCode, reset, replaceState }), [state, addItems, updateItem, deleteItem, clearItems, toggleItem, addReceipt, updateReceipt, deleteReceipt, addRefuel, deleteRefuel, addVehicle, addCategory, renameCategory, setCategoryColor, moveCategory, archiveCategory, mergeCategory, addRecurringExpense, updateRecurringExpense, deleteRecurringExpense, confirmRecurringExpense, skipRecurringExpense, upsertPantryItem, deletePantryItem, addMealPlan, deleteMealPlan, setPostalCode, reset, replaceState]);
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 

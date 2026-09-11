@@ -1,11 +1,11 @@
-import { Check, MoreHorizontal, Search, ShoppingBasket, Sparkles, Trash2 } from 'lucide-react';
+import { Check, ChefHat, MoreHorizontal, Search, ShoppingBasket, Sparkles, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Segmented, EmptyState, Button, IconButton, Sheet, Field } from '../components/ui';
 import { useStore } from '../store/StoreProvider';
 import type { ShoppingItem } from '../types';
 import { activeCategories } from '../services/categories';
 
-export function ListScreen({ onAdd, onGenerate }: { onAdd: () => void; onGenerate: () => void }) {
+export function ListScreen({ onAdd, onGenerate, onPantry }: { onAdd: () => void; onGenerate: () => void; onPantry: () => void }) {
   const { state, toggleItem, updateItem, deleteItem, clearItems } = useStore();
   const [filter, setFilter] = useState<'all' | 'pending' | 'done'>('all');
   const [search, setSearch] = useState('');
@@ -20,7 +20,7 @@ export function ListScreen({ onAdd, onGenerate }: { onAdd: () => void; onGenerat
   const done = state.items.length - pending;
   return <div className="screen">
     <div className="search"><Search size={19} /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Buscar en la lista…" /></div>
-    <button className="generate-list-entry" onClick={onGenerate}><span><Sparkles size={18} /></span><span><b>Generar lista con IA</b><small>Una receta, una celebración o una tarea completa</small></span></button>
+    <div className="smart-list-actions"><button className="generate-list-entry" onClick={onGenerate}><span><Sparkles size={18} /></span><span><b>Generar lista con IA</b><small>Una receta, celebración o tarea</small></span></button><button className="generate-list-entry pantry-entry" onClick={onPantry}><span><ChefHat size={18} /></span><span><b>Despensa y menús</b><small>Cocina aprovechando lo que tienes</small></span></button></div>
     <Segmented value={filter} onChange={setFilter} options={[{ value: 'all', label: 'Todos', count: state.items.length }, { value: 'pending', label: 'Pendientes', count: pending }, { value: 'done', label: 'Comprados', count: done }]} />
     {state.items.length ? <div className="list-actions"><span>{state.items.length} productos en la lista</span><button onClick={() => { if (window.confirm(`¿Vaciar toda la lista? Se eliminarán ${state.items.length} productos, pero tus tickets y repostajes se conservarán.`)) { clearItems(); setSearch(''); setFilter('all'); } }}><Trash2 size={15} /> Vaciar lista</button></div> : null}
     {!visible.length ? <EmptyState icon={<ShoppingBasket />} title={state.items.length ? 'No hay resultados' : 'Tu lista está vacía'} text={state.items.length ? 'Prueba con otro filtro o búsqueda.' : 'Añade varios productos escribiendo o hablando de forma natural.'} action={!state.items.length ? <Button onClick={onAdd}>Añadir productos</Button> : undefined} /> : <div className="grouped-list">{[...grouped].map(([category, items]) => <section key={category}><h2>{category}<span>{items.length}</span></h2><div className="list-card">{items.map(item => <article className={`product-row ${item.completed ? 'completed' : ''}`} key={item.id}><button className="check" onClick={() => toggleItem(item.id)} aria-label={item.completed ? `Desmarcar ${item.name}` : `Marcar ${item.name}`}>{item.completed ? <Check size={16} /> : null}</button><button className="product-row__main" onClick={() => toggleItem(item.id)}><b>{item.name}</b><small>{item.quantity.toLocaleString('es-ES')} {item.unit}{item.store ? ` · ${item.store}` : ''}</small></button><IconButton label={`Opciones de ${item.name}`} onClick={() => setEditing(item)}><MoreHorizontal size={20} /></IconButton></article>)}</div></section>)}</div>}

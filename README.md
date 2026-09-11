@@ -1,6 +1,6 @@
 # MiRecibo
 
-Aplicación local-first para Android y web que reúne lista de compra, interpretación inteligente de tickets, historial de precios, estadísticas y repostajes.
+Aplicación local-first para Android y web que reúne lista de compra, interpretación inteligente de tickets, despensa, menús, estadísticas y repostajes.
 
 ## Funciones incluidas
 
@@ -12,15 +12,19 @@ Aplicación local-first para Android y web que reúne lista de compra, interpret
 - OCR local conservado únicamente como herramienta de respaldo y depuración.
 - Revisión editable de establecimiento, fecha, productos, cantidades, importes y total.
 - Registro manual de compras sin ticket físico, con establecimiento, fecha, importe, concepto y categoría.
-- Historial y detalle de tickets.
+- Historial y detalle de tickets, con búsqueda local por nombre de producto, tienda, fecha y precio.
 - Repostajes asociados a vehículos.
 - Estadísticas por categoría y establecimiento.
-- Alertas calculadas a partir de cambios en el precio unitario histórico.
+- Despensa local editable que puede rellenarse manualmente o desde productos de tickets.
+- Generación de tres recetas o una planificación semanal basada en la despensa, con filtros dietéticos y lista de ingredientes faltantes.
+- Planes guardados reutilizables sin nuevas consultas de IA y alta directa de faltantes en la lista de compra.
 - Persistencia local versionada, funcionamiento como PWA y copias exportables/restaurables.
 - Snapshot completo de la base local, compatible con versiones anteriores y con recuperación previa a cada restauración.
 - Categorías personalizadas con color, orden, archivado y fusión de todo su historial.
 - Gastos periódicos semanales, mensuales o anuales, automáticos o sujetos a confirmación.
 - Actualización integrada desde GitHub Releases sin abrir el navegador.
+
+La comparación de cestas y el mapa de supermercados están retirados temporalmente de la aplicación mientras se revisan cobertura, precisión y consumo de recursos.
 
 ## Desarrollo
 

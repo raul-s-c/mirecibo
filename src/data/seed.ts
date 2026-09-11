@@ -28,5 +28,7 @@ export const initialState: AppState = {
   ],
   alerts: [],
   categories: DEFAULT_CATEGORIES,
-  recurringExpenses: []
+  recurringExpenses: [],
+  pantryItems: [],
+  mealPlans: []
 };

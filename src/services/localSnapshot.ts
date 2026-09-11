@@ -7,7 +7,7 @@ import type { AppState } from '../types';
 export const SNAPSHOT_FORMAT = 'mirecibo-local-snapshot';
 const RECOVERY_KEY = 'mirecibo-recovery-snapshot-v1';
 
-interface LocalSnapshot { format: typeof SNAPSHOT_FORMAT; version: 1; appVersion: string; exportedAt: string; summary: { items: number; receipts: number; refuels: number; vehicles: number; categories: number; recurringExpenses: number }; state: AppState }
+interface LocalSnapshot { format: typeof SNAPSHOT_FORMAT; version: 1; appVersion: string; exportedAt: string; summary: { items: number; receipts: number; refuels: number; vehicles: number; categories: number; recurringExpenses: number; pantryItems: number; mealPlans: number }; state: AppState }
 
 function validState(value: unknown): value is AppState {
   if (!value || typeof value !== 'object') return false;
@@ -16,7 +16,7 @@ function validState(value: unknown): value is AppState {
 }
 
 export function createSnapshot(state: AppState, appVersion: string, exportedAt = new Date().toISOString()) {
-  const snapshot: LocalSnapshot = { format: SNAPSHOT_FORMAT, version: 1, appVersion, exportedAt, summary: { items: state.items.length, receipts: state.receipts.length, refuels: state.refuels.length, vehicles: state.vehicles.length, categories: state.categories.length, recurringExpenses: state.recurringExpenses.length }, state };
+  const snapshot: LocalSnapshot = { format: SNAPSHOT_FORMAT, version: 1, appVersion, exportedAt, summary: { items: state.items.length, receipts: state.receipts.length, refuels: state.refuels.length, vehicles: state.vehicles.length, categories: state.categories.length, recurringExpenses: state.recurringExpenses.length, pantryItems: state.pantryItems.length, mealPlans: state.mealPlans.length }, state };
   return JSON.stringify(snapshot, null, 2);
 }
 

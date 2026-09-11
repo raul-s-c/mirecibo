@@ -6,7 +6,7 @@ import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.WebViewListener;
 
 public class MainActivity extends BridgeActivity {
-    private static final String UI_CACHE_VERSION = "0.10.0";
+    private static final String UI_CACHE_VERSION = "0.11.0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

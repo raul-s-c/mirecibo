@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowRight, CalendarClock, CalendarDays, ChevronLeft, ChevronRight, Fuel, ListChecks, ReceiptText, ScanLine, ShieldCheck } from 'lucide-react';
+import { ArrowRight, CalendarClock, CalendarDays, ChefHat, ChevronLeft, ChevronRight, Fuel, ListChecks, ReceiptText, ScanLine, ShieldCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useStore } from '../store/StoreProvider';
 import type { AppPage } from '../types';
@@ -19,19 +19,6 @@ export function HomeScreen({ onNavigate, onAdd, onScan }: { onNavigate: (page: A
   const recent = useMemo(() => [...state.receipts].sort((a, b) => `${b.date}${b.time ?? ''}`.localeCompare(`${a.date}${a.time ?? ''}`)).slice(0, 4), [state.receipts]);
   const pending = state.items.filter(item => !item.completed).length;
   const recurringDue = dueReminderExpenses(state);
-  const priceSavings = useMemo(() => {
-    const last = new Map<string, number>();
-    let saving = 0;
-    [...state.receipts].reverse().forEach(receipt => receipt.lines.forEach(line => {
-      if (line.lineType && line.lineType !== 'product') return;
-      const key = line.name.toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
-      const current = line.unitPrice || line.total / Math.max(line.quantity, 1);
-      const previous = last.get(key);
-      if (previous !== undefined && current < previous) saving += (previous - current) * Math.max(line.quantity, 1);
-      last.set(key, current);
-    }));
-    return saving;
-  }, [state.receipts]);
   return <div className="screen home-screen">
     <Segmented value={period} onChange={setPeriod} options={[{ value: 'month', label: 'Mes' }, { value: 'year', label: 'Año' }, { value: 'all', label: 'Desde el inicio' }]} />
     {period === 'month' ? <div className="month-selector">
@@ -59,6 +46,6 @@ export function HomeScreen({ onNavigate, onAdd, onScan }: { onNavigate: (page: A
         {recent.map(receipt => <button key={receipt.id} onClick={() => onNavigate('tickets')}><span className="round-icon"><ReceiptText /></span><span><b>{receipt.store}</b><small>{shortDate(receipt.date)} · {receipt.lines.length} productos</small></span><strong>{money(receipt.total)}</strong><ArrowRight /></button>)}
       </div>}
     </section>
-    <button className="saving-tip" onClick={() => onNavigate('alerts')}><span><ArrowDownRight /></span><div><b>Comparar cesta en el mapa</b><small>{priceSavings > 0 ? 'Mira dónde comprar tu lista y cuánto puedes ahorrar.' : 'Calcula tu lista en los supermercados cercanos.'}</small></div><strong>{priceSavings > 0 ? money(priceSavings) : 'Abrir mapa'}</strong><ArrowRight /></button>
+    <button className="saving-tip meal-home-entry" onClick={() => onNavigate('pantry')}><span><ChefHat /></span><div><b>Planifica con tu despensa</b><small>Crea recetas o una semana completa aprovechando lo que ya tienes.</small></div><strong>{state.pantryItems.length ? `${state.pantryItems.length} productos` : 'Empezar'}</strong><ArrowRight /></button>
   </div>;
 }

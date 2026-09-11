@@ -1,5 +1,5 @@
 export type Category = string;
-export type AppPage = 'home' | 'list' | 'tickets' | 'fuel' | 'analysis' | 'alerts' | 'settings';
+export type AppPage = 'home' | 'list' | 'tickets' | 'fuel' | 'analysis' | 'pantry' | 'settings';
 
 export interface ShoppingItem {
   id: string;
@@ -98,6 +98,56 @@ export interface RecurringExpense {
   createdAt: string;
 }
 
+export interface PantryItem {
+  id: string;
+  name: string;
+  quantity: number;
+  unit: string;
+  category: Category;
+  sourceReceiptId?: string;
+  updatedAt: string;
+}
+
+export type MealPlanMode = 'ideas' | 'week';
+export type MealSlotSelection = 'lunch' | 'dinner' | 'both';
+
+export interface MealIngredient {
+  name: string;
+  quantity: number;
+  unit: string;
+  source: 'pantry' | 'shopping';
+}
+
+export interface PlannedMeal {
+  type: string;
+  name: string;
+  description: string;
+  ingredients: MealIngredient[];
+  steps: string[];
+}
+
+export interface MealPlanDay {
+  label: string;
+  date: string;
+  meals: PlannedMeal[];
+}
+
+export interface MealPlan {
+  id: string;
+  title: string;
+  summary: string;
+  assumptions: string[];
+  startDate: string;
+  people: number;
+  mode: MealPlanMode;
+  mealSlots: MealSlotSelection;
+  dietFilters: string[];
+  notes: string;
+  days: MealPlanDay[];
+  shoppingItems: NewShoppingItem[];
+  createdAt: string;
+}
+
 export interface PriceOffer {
   source: 'history' | 'mercadona' | 'consum' | 'esclat';
   store: string;
@@ -164,6 +214,8 @@ export interface AppState {
   alerts: PriceAlert[];
   categories: CategoryDefinition[];
   recurringExpenses: RecurringExpense[];
+  pantryItems: PantryItem[];
+  mealPlans: MealPlan[];
   postalCode: string;
   currency: 'EUR';
 }
