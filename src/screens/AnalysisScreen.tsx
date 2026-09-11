@@ -1,15 +1,16 @@
-import { BarChart3, ChevronRight, Fuel, ReceiptText, ShoppingBag, WalletCards } from 'lucide-react';
+import { BarChart3, ChevronRight, Fuel, Pencil, ReceiptText, ShoppingBag, WalletCards } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { EmptyState, Sheet } from '../components/ui';
 import { availableExpenseMonths, buildAnalyticsData, type ExpenseCategory, type ExpenseKind, type ExpenseLine } from '../services/analytics';
 import { useStore } from '../store/StoreProvider';
 import { money, percent, shortDate } from '../utils/format';
 import { monthLabel } from '../utils/monthPeriod';
-import { categoryColor } from '../services/categories';
+import { activeCategories, categoryColor } from '../services/categories';
+import { ExpenseCategoryEditor } from '../components/ExpenseCategoryEditor';
 
 type Drilldown = { type: 'all' | 'category' | 'store' | 'month' | 'product'; key: string; title: string };
 
-function AnalyticsDetailSheet({ selection, lines, onClose }: { selection: Drilldown | null; lines: ExpenseLine[]; onClose: () => void }) {
+function AnalyticsDetailSheet({ selection, lines, onClose, onEditCategory }: { selection: Drilldown | null; lines: ExpenseLine[]; onClose: () => void; onEditCategory: (line: ExpenseLine) => void }) {
   const groups = useMemo(() => {
     const map = new Map<string, ExpenseLine[]>();
     lines.forEach(line => map.set(`${line.sourceType}:${line.sourceId}`, [...(map.get(`${line.sourceType}:${line.sourceId}`) ?? []), line]));
@@ -23,17 +24,18 @@ function AnalyticsDetailSheet({ selection, lines, onClose }: { selection: Drilld
       const subtotal = group.reduce((sum, line) => sum + line.amount, 0);
       return <section key={`${first.sourceType}:${first.sourceId}`} className="analytics-document">
         <header><span className={`store-mark ${first.sourceType === 'refuel' ? 'orange' : ''}`}>{first.sourceType === 'refuel' ? <Fuel size={18} /> : first.merchant.slice(0, 1)}</span><span><b>{first.merchant}</b><small>{shortDate(first.date)} · {first.sourceType === 'refuel' ? 'Repostaje' : 'Ticket'}</small></span><strong>{money(subtotal)}</strong></header>
-        <div>{group.map(line => <div className="analytics-line" key={line.id}><span><b>{line.name}</b><small>{line.category}</small></span><span><small>{line.quantity.toLocaleString('es-ES', { maximumFractionDigits: 3 })} {line.unit}</small><small>{money(line.unitPrice)}/{line.unit}</small></span><strong>{money(line.amount)}</strong></div>)}</div>
+        <div>{group.map(line => <div className="analytics-line" key={line.id}><span><b>{line.name}</b><small>{line.category}</small></span><span><small>{line.quantity.toLocaleString('es-ES', { maximumFractionDigits: 3 })} {line.unit}</small><small>{money(line.unitPrice)}/{line.unit}</small></span><strong>{money(line.amount)}</strong>{line.isAdjustment ? <span /> : <button type="button" aria-label={`Cambiar categoría de ${line.name}`} title="Cambiar categoría" onClick={() => onEditCategory(line)}><Pencil size={15} /></button>}</div>)}</div>
       </section>;
     })}</div>
   </Sheet>;
 }
 
 export function AnalysisScreen() {
-  const { state } = useStore();
+  const { state, updateReceipt, updateRefuel } = useStore();
   const [month, setMonth] = useState('all');
   const [kind, setKind] = useState<ExpenseKind>('all');
   const [selection, setSelection] = useState<Drilldown | null>(null);
+  const [editingLine, setEditingLine] = useState<ExpenseLine | null>(null);
   const months = useMemo(() => availableExpenseMonths(state), [state]);
   const data = useMemo(() => buildAnalyticsData(state, month, kind), [kind, month, state]);
   const selectedLines = useMemo(() => {
@@ -50,6 +52,17 @@ export function AnalysisScreen() {
   const gradient = chartTotal && data.category.length ? `conic-gradient(${data.category.map(([name, value], index) => { const before = data.category.slice(0, index).reduce((sum, item) => sum + item[1], 0) / chartTotal * 100; const after = before + value / chartTotal * 100; return `${colorFor(name)} ${before}% ${after}%`; }).join(',')})` : '#eef2f6';
   const maxMonth = Math.max(...data.months.map(item => item[1]), 1);
   const open = (type: Drilldown['type'], key: string, title: string) => setSelection({ type, key, title });
+  const saveCategory = (category: string) => {
+    if (!editingLine) return;
+    if (editingLine.sourceType === 'receipt') {
+      const receipt = state.receipts.find(value => value.id === editingLine.sourceId);
+      if (receipt) updateReceipt({ ...receipt, lines: receipt.lines.map(line => line.id === editingLine.id ? { ...line, category } : line) });
+    } else {
+      const refuel = state.refuels.find(value => value.id === editingLine.sourceId);
+      if (refuel) updateRefuel({ ...refuel, category });
+    }
+    setEditingLine(null);
+  };
 
   return <div className="screen analysis-screen">
     <div className="analysis-filters">
@@ -66,6 +79,7 @@ export function AnalysisScreen() {
       </div>
       <div className="saving-tip static"><span><BarChart3 /></span><div><b>Datos que se pueden comprobar</b><small>Cada importe abre los productos y facturas que lo componen.</small></div></div>
     </> : <EmptyState icon={<BarChart3 />} title="Sin gastos en este filtro" text="Prueba otro mes o incluye compras y combustible." />}
-    <AnalyticsDetailSheet selection={selection} lines={selectedLines} onClose={() => setSelection(null)} />
+    <AnalyticsDetailSheet selection={selection} lines={selectedLines} onClose={() => setSelection(null)} onEditCategory={setEditingLine} />
+    <ExpenseCategoryEditor target={editingLine ? { key: `${editingLine.sourceType}:${editingLine.sourceId}:${editingLine.id}`, name: editingLine.name, category: editingLine.category } : null} categories={activeCategories(state).map(value => value.name)} onClose={() => setEditingLine(null)} onSave={saveCategory} />
   </div>;
 }

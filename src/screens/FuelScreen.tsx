@@ -1,16 +1,19 @@
-import { Fuel, Gauge, Plus, Trash2 } from 'lucide-react';
+import { Fuel, Gauge, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useStore } from '../store/StoreProvider';
 import { Button, EmptyState, Sheet } from '../components/ui';
 import type { Refuel } from '../types';
 import { money, shortDate } from '../utils/format';
 import { monthLabel } from '../utils/monthPeriod';
+import { activeCategories } from '../services/categories';
+import { ExpenseCategoryEditor } from '../components/ExpenseCategoryEditor';
 
 export function FuelScreen({ onAdd }: { onAdd: () => void }) {
-  const { state, deleteRefuel } = useStore();
+  const { state, deleteRefuel, updateRefuel } = useStore();
   const [month, setMonth] = useState('all');
   const [vehicleId, setVehicleId] = useState('all');
   const [selected, setSelected] = useState<Refuel | null>(null);
+  const [editingCategory, setEditingCategory] = useState(false);
   const months = useMemo(() => [...new Set(state.refuels.map(value => value.date.slice(0, 7)))].sort((a, b) => b.localeCompare(a)), [state.refuels]);
   const refuels = useMemo(() => state.refuels.filter(refuel => (month === 'all' || refuel.date.startsWith(month)) && (vehicleId === 'all' || refuel.vehicleId === vehicleId)), [month, state.refuels, vehicleId]);
   const total = refuels.reduce((sum, refuel) => sum + refuel.total, 0);
@@ -24,8 +27,10 @@ export function FuelScreen({ onAdd }: { onAdd: () => void }) {
     {!refuels.length ? <EmptyState icon={<Fuel />} title="Sin repostajes en este filtro" text="Selecciona otro mes o vehículo, o escanea una factura nueva." action={<Button onClick={onAdd}>Añadir repostaje</Button>} /> : <div className="ticket-list">{refuels.map(refuel => { const vehicle = state.vehicles.find(value => value.id === refuel.vehicleId); return <button type="button" key={refuel.id} onClick={() => setSelected(refuel)}><span className="store-mark orange">{refuel.station.slice(0, 1)}</span><span><b>{refuel.station}</b><small>{shortDate(refuel.date)} · {refuel.fuelType} · {vehicle?.name ?? 'Sin vehículo'}</small><small>{refuel.liters.toLocaleString('es-ES')} L · {money(refuel.pricePerLiter)}/L</small></span><strong>{money(refuel.total)}</strong></button>; })}</div>}
     <Sheet open={Boolean(selected)} title="Detalle del repostaje" onClose={() => setSelected(null)}>{selected ? <div className="fuel-detail">
       <div className="receipt-summary"><span className="store-mark orange"><Fuel size={22} /></span><div><h3>{selected.station}</h3><p>{shortDate(selected.date)}</p></div><strong>{money(selected.total)}</strong></div>
-      <dl><div><dt>Combustible</dt><dd>{selected.fuelType}</dd></div><div><dt>Litros</dt><dd>{selected.liters.toLocaleString('es-ES')} L</dd></div><div><dt>Precio por litro</dt><dd>{money(selected.pricePerLiter)}/L</dd></div><div><dt>Vehículo</dt><dd>{selectedVehicle?.name ?? 'Sin asignar'}</dd></div>{selected.odometer ? <div><dt><Gauge size={15} /> Kilometraje</dt><dd>{selected.odometer.toLocaleString('es-ES')} km</dd></div> : null}{selected.tags.length ? <div><dt>Etiquetas</dt><dd>{selected.tags.join(' · ')}</dd></div> : null}</dl>
+      <dl><div><dt>Combustible</dt><dd>{selected.fuelType}</dd></div><div><dt>Categoría</dt><dd>{selected.category ?? 'Combustible'}</dd></div><div><dt>Litros</dt><dd>{selected.liters.toLocaleString('es-ES')} L</dd></div><div><dt>Precio por litro</dt><dd>{money(selected.pricePerLiter)}/L</dd></div><div><dt>Vehículo</dt><dd>{selectedVehicle?.name ?? 'Sin asignar'}</dd></div>{selected.odometer ? <div><dt><Gauge size={15} /> Kilometraje</dt><dd>{selected.odometer.toLocaleString('es-ES')} km</dd></div> : null}{selected.tags.length ? <div><dt>Etiquetas</dt><dd>{selected.tags.join(' · ')}</dd></div> : null}</dl>
+      <Button variant="secondary" className="button--wide" onClick={() => setEditingCategory(true)}><Pencil size={18} /> Cambiar categoría</Button>
       <Button variant="danger" className="button--wide" onClick={() => { if (window.confirm('¿Eliminar esta factura de combustible?')) { deleteRefuel(selected.id); setSelected(null); } }}><Trash2 size={18} /> Eliminar factura</Button>
     </div> : null}</Sheet>
+    <ExpenseCategoryEditor target={selected && editingCategory ? { key: selected.id, name: `${selected.station} · ${selected.fuelType}`, category: selected.category ?? 'Combustible' } : null} categories={activeCategories(state).map(value => value.name)} onClose={() => setEditingCategory(false)} onSave={category => { if (!selected) return; const updated = { ...selected, category }; updateRefuel(updated); setSelected(updated); setEditingCategory(false); }} />
   </div>;
 }

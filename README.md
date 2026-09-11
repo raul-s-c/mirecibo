@@ -12,9 +12,10 @@ Aplicación local-first para Android y web que reúne lista de compra, interpret
 - OCR local conservado únicamente como herramienta de respaldo y depuración.
 - Revisión editable de establecimiento, fecha, productos, cantidades, importes y total.
 - Registro manual de compras sin ticket físico, con establecimiento, fecha, importe, concepto y categoría.
-- Historial y detalle de tickets, con búsqueda local por nombre de producto, tienda, fecha y precio.
+- Historial y detalle de tickets, con búsqueda local por nombre de producto, número de coincidencias y total gastado calculado desde los importes de línea.
+- Cada coincidencia identifica ticket, comercio, fecha, cantidad, precio unitario e importe.
 - Repostajes asociados a vehículos.
-- Estadísticas por categoría y establecimiento.
+- Estadísticas por categoría y establecimiento, con recategorización directa de cualquier concepto y actualización inmediata de todos los totales.
 - Despensa local editable que puede rellenarse manualmente o desde productos de tickets.
 - Generación de tres recetas o una planificación semanal basada en la despensa, con filtros dietéticos y lista de ingredientes faltantes.
 - Planes guardados reutilizables sin nuevas consultas de IA y alta directa de faltantes en la lista de compra.
@@ -60,3 +61,10 @@ En una compilación privada, la URL y el token de acceso se pueden inyectar dura
 ## Privacidad y publicación
 
 La lista, el historial y las estadísticas siguen guardándose localmente. Solo la fotografía que el usuario decide escanear se envía cifrada al backend y de ahí a OpenAI para interpretarla. Para publicar en Google Play hace falta una política de privacidad que describa este tratamiento, además del nombre comercial, identificador de paquete, iconos y firma de producción.
+
+### Estado de Google Play
+
+- Los correos de la prueba cerrada son cuentas de Google de testers; MiRecibo no necesita incorporar un acceso por correo para cumplir este requisito.
+- Las cuentas personales de desarrollador creadas después del 13 de noviembre de 2023 deben mantener al menos 12 testers inscritos de forma continua durante 14 días antes de solicitar acceso a producción: [requisito oficial](https://support.google.com/googleplay/android-developer/answer/14151465?hl=es).
+- La lista se configura en **Play Console → Pruebas → Prueba cerrada → Gestionar track → Testers** y admite direcciones individuales o Grupos de Google: [configuración oficial](https://support.google.com/googleplay/android-developer/answer/9845334?hl=es).
+- La APK privada de GitHub sigue siendo una compilación de depuración. Para Play queda pendiente crear la clave de firma de producción, generar el AAB release, completar la ficha, la política de privacidad y la declaración de seguridad de datos.

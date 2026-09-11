@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Receipt } from '../types';
-import { searchReceiptProducts } from './receiptSearch';
+import { searchReceiptProducts, summarizeReceiptProductResults } from './receiptSearch';
 
 const receipt = (id: string, date: string, name: string, lineType: 'product' | 'discount' = 'product'): Receipt => ({
   id, store: 'Consum', date, total: 2, createdAt: `${date}T12:00:00Z`, lines: [{ id: `${id}-line`, name, quantity: 1, unit: 'ud.', unitPrice: 2, total: 2, category: 'Alimentación', confidence: 1, lineType }]
@@ -14,5 +14,13 @@ describe('searchReceiptProducts', () => {
   it('no muestra descuentos ni resultados para una consulta vacía', () => {
     expect(searchReceiptProducts([receipt('discount', '2026-09-01', 'Descuento salmón', 'discount')], 'salmon')).toEqual([]);
     expect(searchReceiptProducts([receipt('one', '2026-09-01', 'Queso')], ' ')).toEqual([]);
+  });
+
+  it('suma los importes completos de línea, no los precios unitarios', () => {
+    const first = receipt('one', '2026-09-01', 'Queso curado');
+    first.lines[0] = { ...first.lines[0], quantity: 3, unitPrice: 2, total: 6 };
+    const second = receipt('two', '2026-09-02', 'Queso fresco');
+    second.lines[0] = { ...second.lines[0], quantity: 2, unitPrice: 1.5, total: 3 };
+    expect(summarizeReceiptProductResults(searchReceiptProducts([first, second], 'queso'))).toEqual({ count: 2, total: 9 });
   });
 });

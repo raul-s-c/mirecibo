@@ -1,8 +1,10 @@
 import { Capacitor, registerPlugin } from '@capacitor/core';
 
-export const CURRENT_VERSION = '0.11.0';
+export const CURRENT_VERSION = '0.12.0';
 const RELEASE_API = 'https://api.github.com/repos/raul-s-c/mirecibo/releases/latest';
-const NativeUpdater = registerPlugin<{ installApk(options: { url: string; fileName: string }): Promise<{ permissionRequired?: boolean }> }>('MiReciboUpdater');
+type NativeUpdaterPlugin = { installApk(options: { url: string; fileName: string }): Promise<{ permissionRequired?: boolean }> };
+const updaterRuntime = globalThis as typeof globalThis & { __mireciboNativeUpdater?: NativeUpdaterPlugin };
+const NativeUpdater = updaterRuntime.__mireciboNativeUpdater ??= registerPlugin<NativeUpdaterPlugin>('MiReciboUpdater');
 
 export interface AppRelease { version: string; notes: string; downloadUrl: string; fileName: string }
 

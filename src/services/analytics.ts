@@ -77,7 +77,7 @@ export function buildAnalyticsData(state: AppState, month = 'all', kind: Expense
       date: refuel.date,
       merchant: refuel.station,
       name: refuel.fuelType,
-      category: 'Combustible',
+      category: refuel.category ?? 'Combustible',
       quantity: refuel.liters,
       unit: 'L',
       unitPrice: refuel.pricePerLiter,

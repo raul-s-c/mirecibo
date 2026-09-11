@@ -25,4 +25,9 @@ describe('analytics', () => {
     expect(buildAnalyticsData(state, '2026-07', 'fuel').total).toBe(30);
     expect(availableExpenseMonths(state)).toEqual(['2026-08', '2026-07']);
   });
+
+  it('respeta una categoría corregida en un repostaje', () => {
+    const corrected = { ...state, refuels: [{ ...state.refuels[0], category: 'Trabajo' }] };
+    expect(buildAnalyticsData(corrected, 'all', 'fuel').category).toEqual([['Trabajo', 30]]);
+  });
 });

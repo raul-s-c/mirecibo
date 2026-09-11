@@ -41,6 +41,7 @@ type Action =
   | { type: 'update-receipt'; receipt: Receipt }
   | { type: 'delete-receipt'; id: string }
   | { type: 'add-refuel'; refuel: Refuel }
+  | { type: 'update-refuel'; refuel: Refuel }
   | { type: 'delete-refuel'; id: string }
   | { type: 'add-vehicle'; vehicle: Vehicle }
   | { type: 'add-category'; category: CategoryDefinition }
@@ -119,6 +120,9 @@ function reducer(state: AppState, action: Action): AppState {
       break;
     case 'add-refuel':
       next = { ...state, refuels: [action.refuel, ...state.refuels] };
+      break;
+    case 'update-refuel':
+      next = { ...state, refuels: state.refuels.map(value => value.id === action.refuel.id ? action.refuel : value) };
       break;
     case 'delete-refuel':
       next = { ...state, refuels: state.refuels.filter(value => value.id !== action.id) };
@@ -239,6 +243,7 @@ interface StoreValue {
   updateReceipt: (receipt: Receipt) => void;
   deleteReceipt: (id: string) => void;
   addRefuel: (refuel: Refuel) => void;
+  updateRefuel: (refuel: Refuel) => void;
   deleteRefuel: (id: string) => void;
   addVehicle: (vehicle: Vehicle) => void;
   addCategory: (category: Omit<CategoryDefinition, 'id'>) => void;
@@ -294,6 +299,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const updateReceipt = useCallback((receipt: Receipt) => dispatch({ type: 'update-receipt', receipt }), []);
   const deleteReceipt = useCallback((id: string) => dispatch({ type: 'delete-receipt', id }), []);
   const addRefuel = useCallback((refuel: Refuel) => dispatch({ type: 'add-refuel', refuel }), []);
+  const updateRefuel = useCallback((refuel: Refuel) => dispatch({ type: 'update-refuel', refuel }), []);
   const deleteRefuel = useCallback((id: string) => dispatch({ type: 'delete-refuel', id }), []);
   const addVehicle = useCallback((vehicle: Vehicle) => dispatch({ type: 'add-vehicle', vehicle }), []);
   const addCategory = useCallback((category: Omit<CategoryDefinition, 'id'>) => dispatch({ type: 'add-category', category: { ...category, id: uid(), aliases: [category.name] } }), []);
@@ -318,7 +324,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const setPostalCode = useCallback((postalCode: string) => dispatch({ type: 'set-postal-code', postalCode }), []);
   const reset = useCallback(() => dispatch({ type: 'reset' }), []);
   const replaceState = useCallback((nextState: AppState) => dispatch({ type: 'hydrate', state: normalizeState(nextState) }), []);
-  const value = useMemo(() => ({ state, addItems, updateItem, deleteItem, clearItems, toggleItem, addReceipt, updateReceipt, deleteReceipt, addRefuel, deleteRefuel, addVehicle, addCategory, renameCategory, setCategoryColor, moveCategory, archiveCategory, mergeCategory, addRecurringExpense, updateRecurringExpense, deleteRecurringExpense, confirmRecurringExpense, skipRecurringExpense, upsertPantryItem, deletePantryItem, addMealPlan, deleteMealPlan, setPostalCode, reset, replaceState }), [state, addItems, updateItem, deleteItem, clearItems, toggleItem, addReceipt, updateReceipt, deleteReceipt, addRefuel, deleteRefuel, addVehicle, addCategory, renameCategory, setCategoryColor, moveCategory, archiveCategory, mergeCategory, addRecurringExpense, updateRecurringExpense, deleteRecurringExpense, confirmRecurringExpense, skipRecurringExpense, upsertPantryItem, deletePantryItem, addMealPlan, deleteMealPlan, setPostalCode, reset, replaceState]);
+  const value = useMemo(() => ({ state, addItems, updateItem, deleteItem, clearItems, toggleItem, addReceipt, updateReceipt, deleteReceipt, addRefuel, updateRefuel, deleteRefuel, addVehicle, addCategory, renameCategory, setCategoryColor, moveCategory, archiveCategory, mergeCategory, addRecurringExpense, updateRecurringExpense, deleteRecurringExpense, confirmRecurringExpense, skipRecurringExpense, upsertPantryItem, deletePantryItem, addMealPlan, deleteMealPlan, setPostalCode, reset, replaceState }), [state, addItems, updateItem, deleteItem, clearItems, toggleItem, addReceipt, updateReceipt, deleteReceipt, addRefuel, updateRefuel, deleteRefuel, addVehicle, addCategory, renameCategory, setCategoryColor, moveCategory, archiveCategory, mergeCategory, addRecurringExpense, updateRecurringExpense, deleteRecurringExpense, confirmRecurringExpense, skipRecurringExpense, upsertPantryItem, deletePantryItem, addMealPlan, deleteMealPlan, setPostalCode, reset, replaceState]);
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 

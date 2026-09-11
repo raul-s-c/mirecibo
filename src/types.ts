@@ -56,6 +56,7 @@ export interface Refuel {
   liters: number;
   pricePerLiter: number;
   total: number;
+  category?: Category;
   vehicleId: string;
   odometer?: number;
   tags: string[];
