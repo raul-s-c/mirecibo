@@ -7,6 +7,7 @@ import { Button, EmptyState, Segmented } from '../components/ui';
 import { expenseSummary, type ExpensePeriod } from '../utils/expensePeriod';
 import { monthKey, monthLabel, moveMonth } from '../utils/monthPeriod';
 import { dueReminderExpenses } from '../services/recurringExpenses';
+import { AdBannerSlot } from '../components/AdBannerSlot';
 
 export function HomeScreen({ onNavigate, onAdd, onScan }: { onNavigate: (page: AppPage) => void; onAdd: () => void; onScan: () => void }) {
   const { state } = useStore();
@@ -34,6 +35,7 @@ export function HomeScreen({ onNavigate, onAdd, onScan }: { onNavigate: (page: A
       <div><span>{period === 'all' ? 'Desde el inicio' : period === 'year' ? `Año ${year}` : selectedMonth === currentMonth ? 'Este mes' : monthLabel(selectedMonth)}</span><strong>{money(summary.total)}</strong><small><CalendarDays size={14} /> {summary.receipts.length} tickets · {summary.refuels.length} repostajes</small><small>Compras: {money(summary.shopping)} · Combustible: {money(summary.fuel)}</small></div>
       <span className="hero-trust"><ShieldCheck /><small>Datos<br />locales</small></span>
     </section>
+    <AdBannerSlot />
     <div className="quick-grid">
       <button onClick={() => onNavigate('list')}><span className="quick-icon green"><ListChecks /></span><span><b>Mi lista</b><small>{pending ? `${pending} pendientes` : 'Todo comprado'}</small></span><ArrowRight /></button>
       <button onClick={() => onNavigate('fuel')}><span className="quick-icon orange"><Fuel /></span><span><b>Combustible</b><small>{state.refuels.length} repostajes</small></span><ArrowRight /></button>

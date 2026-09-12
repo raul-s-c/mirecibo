@@ -1,6 +1,6 @@
 import { Capacitor, registerPlugin } from '@capacitor/core';
 
-export const CURRENT_VERSION = '0.13.0';
+export const CURRENT_VERSION = '0.13.1';
 export const IS_PLAY_DISTRIBUTION = import.meta.env.MODE === 'play';
 const RELEASE_API = 'https://api.github.com/repos/raul-s-c/mirecibo/releases/latest';
 type NativeUpdaterPlugin = { installApk(options: { url: string; fileName: string }): Promise<{ permissionRequired?: boolean }> };

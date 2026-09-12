@@ -24,7 +24,7 @@ Aplicación local-first para Android y web que reúne lista de compra, interpret
 - Categorías personalizadas con color, orden, archivado y fusión de todo su historial.
 - Gastos periódicos semanales, mensuales o anuales, automáticos o sujetos a confirmación.
 - Actualización integrada desde GitHub Releases sin abrir el navegador.
-- Publicidad discreta mediante banner adaptativo en Inicio, Tickets y Análisis, con consentimiento UMP y acceso a preferencias desde Ajustes.
+- Publicidad discreta mediante un bloque adaptativo integrado entre secciones de Inicio, Tickets y Análisis; nunca desplaza la navegación ni aparece sobre formularios, con consentimiento UMP y acceso a preferencias desde Ajustes.
 
 La comparación de cestas y el mapa de supermercados están retirados temporalmente de la aplicación mientras se revisan cobertura, precisión y consumo de recursos.
 

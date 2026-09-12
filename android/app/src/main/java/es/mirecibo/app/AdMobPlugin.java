@@ -3,6 +3,7 @@ package es.mirecibo.app;
 import android.app.Activity;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import com.getcapacitor.JSObject;
@@ -76,15 +77,14 @@ public class AdMobPlugin extends Plugin {
                 return;
             }
             if (banner != null) {
-                banner.setVisibility(AdView.VISIBLE);
+                applyBannerPosition(banner, call);
                 resolveBanner(call, banner.getAdSize());
                 return;
             }
 
             DisplayMetrics metrics = activity.getResources().getDisplayMetrics();
-            ViewGroup content = activity.findViewById(android.R.id.content);
-            int pixelWidth = content.getWidth() > 0 ? content.getWidth() : metrics.widthPixels;
-            int widthDp = Math.max(320, (int) (pixelWidth / metrics.density));
+            int screenWidthDp = Math.round(metrics.widthPixels / metrics.density);
+            int widthDp = Math.max(120, Math.min(screenWidthDp, Math.round(call.getFloat("width", (float) screenWidthDp))));
             AdSize size = AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(activity, widthDp);
             AdView nextBanner = new AdView(activity);
             nextBanner.setAdUnitId(BuildConfig.ADMOB_BANNER_ID);
@@ -111,13 +111,41 @@ public class AdMobPlugin extends Plugin {
                 }
             });
             FrameLayout.LayoutParams layout = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
+                Math.round(widthDp * metrics.density),
                 FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL
+                Gravity.TOP | Gravity.START
             );
             activity.addContentView(nextBanner, layout);
             banner = nextBanner;
+            applyBannerPosition(nextBanner, call);
             nextBanner.loadAd(new AdRequest.Builder().build());
+        });
+    }
+
+    private void applyBannerPosition(AdView target, PluginCall call) {
+        DisplayMetrics metrics = getActivity().getResources().getDisplayMetrics();
+        float density = metrics.density;
+        int screenWidth = metrics.widthPixels;
+        int requestedWidth = Math.round(call.getFloat("width", screenWidth / density) * density);
+        int width = Math.max(1, Math.min(screenWidth, requestedWidth));
+        int left = Math.max(0, Math.min(screenWidth - width, Math.round(call.getFloat("left", 0f) * density)));
+        int top = Math.max(0, Math.round(call.getFloat("top", 0f) * density));
+        FrameLayout.LayoutParams layout = new FrameLayout.LayoutParams(
+            width,
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            Gravity.TOP | Gravity.START
+        );
+        layout.leftMargin = left;
+        layout.topMargin = top;
+        target.setLayoutParams(layout);
+        target.setVisibility(call.getBoolean("visible", true) ? View.VISIBLE : View.GONE);
+    }
+
+    @PluginMethod
+    public void positionBanner(PluginCall call) {
+        getActivity().runOnUiThread(() -> {
+            if (banner != null) applyBannerPosition(banner, call);
+            call.resolve();
         });
     }
 

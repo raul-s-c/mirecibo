@@ -7,6 +7,7 @@ import { money, percent, shortDate } from '../utils/format';
 import { monthLabel } from '../utils/monthPeriod';
 import { activeCategories, categoryColor } from '../services/categories';
 import { ExpenseCategoryEditor } from '../components/ExpenseCategoryEditor';
+import { AdBannerSlot } from '../components/AdBannerSlot';
 
 type Drilldown = { type: 'all' | 'category' | 'store' | 'month' | 'product'; key: string; title: string };
 
@@ -70,6 +71,7 @@ export function AnalysisScreen() {
       <label><span>Tipo de gasto</span><select aria-label="Tipo de gasto" value={kind} onChange={event => { setKind(event.target.value as ExpenseKind); setSelection(null); }}><option value="all">Compras y combustible</option><option value="shopping">Solo compras</option><option value="fuel">Solo combustible</option></select></label>
     </div>
     <div className="kpi-grid"><div><span className="kpi-icon green"><WalletCards /></span><small>Gasto total</small><strong>{money(data.total)}</strong></div><div><span className="kpi-icon blue"><ReceiptText /></span><small>Documentos</small><strong>{data.documentCount}</strong></div><div><span className="kpi-icon purple"><ShoppingBag /></span><small>Conceptos</small><strong>{data.conceptCount.toLocaleString('es-ES')}</strong></div><div><span className="kpi-icon orange"><BarChart3 /></span><small>Gasto medio</small><strong>{money(data.documentCount ? data.total / data.documentCount : 0)}</strong></div></div>
+    <AdBannerSlot />
     {data.total ? <>
       <section className="analysis-panel"><div className="analysis-panel-title"><h2>Gasto por categoría</h2><small>Toca para ver los productos</small></div><div className="donut-wrap"><button className="donut" aria-label="Ver todos los gastos" onClick={() => open('all', '', 'Todos los gastos')} style={{ background: gradient }}><span><b>{money(data.total)}</b><small>Total</small></span></button><div className="legend">{data.category.map(([name, value]) => <button key={name} onClick={() => open('category', name, name)}><i style={{ background: colorFor(name) }} /><span>{name}</span><b>{money(value)}</b><small>{percent(value / data.total)}</small><ChevronRight size={15} /></button>)}</div></div></section>
       <section className="analysis-panel"><div className="analysis-panel-title"><h2>Gasto por establecimiento</h2><small>Toca para abrir sus facturas</small></div><div className="bar-list">{data.stores.map(([name, value]) => <button key={name} onClick={() => open('store', name, name)}><span>{name}</span><div><i style={{ width: `${value / data.stores[0][1] * 100}%` }} /></div><b>{money(value)}</b><small>{percent(value / data.total)}</small><ChevronRight size={15} /></button>)}</div></section>

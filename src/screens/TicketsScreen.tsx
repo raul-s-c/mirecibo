@@ -7,6 +7,7 @@ import type { Receipt } from '../types';
 import { money, shortDate } from '../utils/format';
 import { activeCategories } from '../services/categories';
 import { searchReceiptProducts, summarizeReceiptProductResults } from '../services/receiptSearch';
+import { AdBannerSlot } from '../components/AdBannerSlot';
 
 export function TicketsScreen({ onScan, onManual }: { onScan: () => void; onManual: () => void }) {
   const { state, deleteReceipt, updateReceipt } = useStore();
@@ -21,6 +22,7 @@ export function TicketsScreen({ onScan, onManual }: { onScan: () => void; onManu
   const ticketNumbers = useMemo(() => new Map([...state.receipts].sort((a, b) => `${a.date}${a.time ?? ''}`.localeCompare(`${b.date}${b.time ?? ''}`)).map((receipt, index) => [receipt.id, index + 1])), [state.receipts]);
   return <div className="screen">
     <section className="metric-banner"><span>Gasto registrado</span><strong>{money(total)}</strong><small>{state.receipts.length} tickets · {state.receipts.reduce((sum, receipt) => sum + receipt.lines.length, 0)} productos</small></section>
+    <AdBannerSlot />
     <div className="ticket-create-actions"><Button onClick={onScan}><ScanLine size={20} /> Escanear</Button><Button variant="secondary" onClick={onManual}><FilePenLine size={20} /> Crear manual</Button></div>
     <div className="search ticket-product-search"><Search size={19} /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Buscar queso, salmón, detergente…" /></div>
     <div className="section-heading"><h2>{search.trim() ? 'Productos encontrados' : 'Historial'}</h2>{search.trim() ? <span>{productSummary.count} {productSummary.count === 1 ? 'coincidencia' : 'coincidencias'}</span> : null}</div>
