@@ -24,6 +24,7 @@ Aplicación local-first para Android y web que reúne lista de compra, interpret
 - Categorías personalizadas con color, orden, archivado y fusión de todo su historial.
 - Gastos periódicos semanales, mensuales o anuales, automáticos o sujetos a confirmación.
 - Actualización integrada desde GitHub Releases sin abrir el navegador.
+- Publicidad discreta mediante banner adaptativo en Inicio, Tickets y Análisis, con consentimiento UMP y acceso a preferencias desde Ajustes.
 
 La comparación de cestas y el mapa de supermercados están retirados temporalmente de la aplicación mientras se revisan cobertura, precisión y consumo de recursos.
 
@@ -48,6 +49,14 @@ cd android
 
 El APK se genera en `android/app/build/outputs/apk/debug/app-debug.apk`.
 
+Para Google Play existe una compilación separada que oculta el actualizador externo y elimina los permisos de ubicación e instalación de APK. Consulta [la guía completa](docs/PLAY_STORE_CHECKLIST.md), [el texto de la ficha](docs/PLAY_STORE_LISTING.md) y [el borrador de seguridad de datos](docs/DATA_SAFETY.md). El AAB se genera con:
+
+```powershell
+pnpm android:play:bundle
+```
+
+La tarea exige identificadores AdMob reales y una clave de subida; falla de forma intencionada si detecta los IDs oficiales de prueba o si falta la firma.
+
 Las versiones instalables se publican en [GitHub Releases](https://github.com/raul-s-c/mirecibo/releases). Desde **Ajustes → Actualizaciones**, la aplicación consulta la última versión, descarga el APK en su almacenamiento privado y abre el instalador de Android. El sistema puede solicitar una vez autorización para instalar desde MiRecibo.
 
 Cada actualización debe firmarse con la misma clave de Android antes de adjuntarla a GitHub Releases; de ese modo puede instalarse sobre la versión anterior sin borrar datos.
@@ -67,4 +76,4 @@ La lista, el historial y las estadísticas siguen guardándose localmente. Solo 
 - Los correos de la prueba cerrada son cuentas de Google de testers; MiRecibo no necesita incorporar un acceso por correo para cumplir este requisito.
 - Las cuentas personales de desarrollador creadas después del 13 de noviembre de 2023 deben mantener al menos 12 testers inscritos de forma continua durante 14 días antes de solicitar acceso a producción: [requisito oficial](https://support.google.com/googleplay/android-developer/answer/14151465?hl=es).
 - La lista se configura en **Play Console → Pruebas → Prueba cerrada → Gestionar track → Testers** y admite direcciones individuales o Grupos de Google: [configuración oficial](https://support.google.com/googleplay/android-developer/answer/9845334?hl=es).
-- La APK privada de GitHub sigue siendo una compilación de depuración. Para Play queda pendiente crear la clave de firma de producción, generar el AAB release, completar la ficha, la política de privacidad y la declaración de seguridad de datos.
+- La APK privada de GitHub sigue siendo una compilación de depuración. La variante Play genera un AAB firmado, usa Google Mobile Ads 25.4.0 y UMP 4.0.0, y bloquea una publicación con IDs publicitarios de prueba.

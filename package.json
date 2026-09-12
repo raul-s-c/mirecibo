@@ -1,7 +1,7 @@
 {
   "name": "mirecibo-app",
   "private": true,
-  "version": "0.12.0",
+  "version": "0.13.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,8 @@
     "test": "vitest run",
     "android:sync": "tsc -b && vite build --mode android && cap sync android",
     "android:apk": "pnpm android:sync && cd android && gradlew.bat assembleDebug",
+    "android:play:sync": "tsc -b && vite build --mode play && cap sync android",
+    "android:play:bundle": "pnpm android:play:sync && cd android && gradlew.bat bundleRelease",
     "worker:types": "wrangler types --config worker/wrangler.jsonc worker/worker-configuration.d.ts",
     "worker:check": "tsc -p worker/tsconfig.json",
     "worker:deploy": "wrangler deploy --config worker/wrangler.jsonc"

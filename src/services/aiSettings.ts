@@ -4,7 +4,8 @@ const SETTINGS_KEY = 'mirecibo-ai-settings-v1';
 const INSTALL_ID_KEY = 'mirecibo-install-id-v1';
 const embeddedSettings = {
   endpoint: 'https://mirecibo-ai.raul-nihongo.workers.dev',
-  accessToken: import.meta.env.VITE_MIRECIBO_ACCESS_TOKEN?.trim() ?? ''
+  // Play builds identify each installation and are rate-limited server-side; they never embed the private bearer token.
+  accessToken: import.meta.env.MODE === 'play' ? '' : import.meta.env.VITE_MIRECIBO_ACCESS_TOKEN?.trim() ?? ''
 };
 export const isAiPreconfigured = true;
 

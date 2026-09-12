@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), ...mode === 'android' ? [] : [VitePWA({
+  plugins: [react(), ...mode === 'android' || mode === 'play' ? [] : [VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
       manifest: {

@@ -1,6 +1,7 @@
 import { Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { AddFlow, type AddFlowName } from './components/AddFlow';
+import { AdBannerManager } from './components/AdBannerManager';
 import { AppHeader, BottomNav } from './components/AppShell';
 import { AnalysisScreen } from './screens/AnalysisScreen';
 import { FuelScreen } from './screens/FuelScreen';
@@ -36,11 +37,13 @@ export function App() {
     return <SettingsScreen />;
   }, [page]);
 
+  const adVisible = !addOpen && (page === 'home' || page === 'tickets' || page === 'analysis');
   return <div className="app-shell">
     <AppHeader {...meta[page]} page={page} onNavigate={setPage} />
     <main>{screen}</main>
     {page !== 'home' && page !== 'analysis' && page !== 'pantry' && page !== 'settings' ? <button className="fab" aria-label="Añadir" onClick={() => openAdd(page === 'tickets' ? 'ticket' : page === 'fuel' ? 'fuel' : 'products')}><Plus /></button> : null}
     <BottomNav page={page} onNavigate={setPage} />
     <AddFlow key={`${addOpen}-${addInitial}`} open={addOpen} initial={addInitial} onClose={() => setAddOpen(false)} />
+    <AdBannerManager visible={adVisible} />
   </div>;
 }

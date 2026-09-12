@@ -27,6 +27,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 button, select { cursor: pointer; }
 
 .app-shell { width: min(100%, 760px); min-height: 100dvh; margin: 0 auto; background: #fff; position: relative; box-shadow: 0 0 36px rgba(16, 24, 40, .08); padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
+.native-ad-visible .app-shell { padding-bottom: calc(78px + var(--ad-banner-height, 50px) + env(safe-area-inset-bottom)); }
 .app-header { position: sticky; top: 0; z-index: 20; min-height: 92px; display: flex; justify-content: space-between; gap: 18px; align-items: center; padding: calc(18px + env(safe-area-inset-top)) 24px 16px; background: rgba(255,255,255,.96); border-bottom: 1px solid rgba(228,231,236,.8); backdrop-filter: blur(18px); }
 .app-header h1 { font-size: 25px; line-height: 1.15; letter-spacing: -.5px; margin: 0; }
 .app-header p { color: var(--muted); margin: 5px 0 0; font-size: 13px; }
@@ -37,6 +38,9 @@ button, select { cursor: pointer; }
 @keyframes screen-in { from { opacity: .25; transform: translateY(4px); } }
 
 .bottom-nav { position: fixed; bottom: 0; z-index: 30; width: min(100%, 760px); display: grid; grid-template-columns: repeat(5,1fr); background: rgba(255,255,255,.98); border-top: 1px solid var(--border); padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); backdrop-filter: blur(20px); }
+.native-ad-visible .bottom-nav { bottom: var(--ad-banner-height, 50px); }
+.ad-demo-banner { position: fixed; z-index: 31; bottom: 0; width: min(100%, 760px); min-height: 50px; display: flex; align-items: center; justify-content: center; gap: 9px; border-top: 1px solid #e5e7eb; color: #475467; background: #f8fafc; font-size: 11px; }
+.ad-demo-banner span { padding: 3px 6px; border: 1px solid #d0d5dd; border-radius: 4px; color: #667085; font-size: 8px; text-transform: uppercase; letter-spacing: .06em; }
 .bottom-nav button { border: 0; background: none; color: #667085; display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 50px; justify-content: center; border-radius: 12px; font-weight: 600; font-size: 10px; padding: 4px 2px; }
 .bottom-nav button.active { color: var(--green); background: var(--green-pale); }
 .bottom-nav svg { stroke-width: 2; }

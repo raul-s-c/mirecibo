@@ -6,11 +6,12 @@ import com.getcapacitor.BridgeActivity;
 import com.getcapacitor.WebViewListener;
 
 public class MainActivity extends BridgeActivity {
-    private static final String UI_CACHE_VERSION = "0.12.0";
+    private static final String UI_CACHE_VERSION = "0.13.0";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        registerPlugin(UpdatePlugin.class);
+        if (BuildConfig.DEBUG) registerPlugin(UpdatePlugin.class);
+        registerPlugin(AdMobPlugin.class);
         bridgeBuilder.addWebViewListener(new WebViewListener() {
             @Override
             public void onPageLoaded(WebView webView) {
