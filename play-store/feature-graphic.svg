@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#047a47"/><stop offset="1" stop-color="#0cad68"/></linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="16" stdDeviation="20" flood-color="#035d38" flood-opacity=".32"/></filter>
+  </defs>
+  <rect width="1024" height="500" fill="url(#bg)"/>
+  <circle cx="901" cy="52" r="210" fill="#fff" opacity=".05"/><circle cx="72" cy="476" r="230" fill="#fff" opacity=".04"/>
+  <g transform="translate(108 92) scale(.62)" filter="url(#shadow)">
+    <rect width="512" height="512" rx="112" fill="#fff"/>
+    <path d="M146 144h220l-19 224a36 36 0 0 1-36 33H201a36 36 0 0 1-36-33l-19-224Z" fill="#079455"/>
+    <path d="M211 109c0-25 20-45 45-45s45 20 45 45v57h-32v-57a13 13 0 0 0-26 0v57h-32v-57Z" fill="#079455"/>
+    <path d="m209 260 31 31 68-73" fill="none" stroke="#fff" stroke-width="25" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g fill="#fff" font-family="Inter,Segoe UI,Arial,sans-serif">
+    <text x="482" y="206" font-size="72" font-weight="760" letter-spacing="-3">MiRecibo</text>
+    <text x="486" y="263" font-size="27" font-weight="500" opacity=".9">Tu compra, bien entendida</text>
+    <text x="486" y="328" font-size="21" opacity=".78">Tickets · Lista · Despensa · Análisis</text>
+  </g>
+</svg>
