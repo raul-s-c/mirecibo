@@ -30,4 +30,16 @@ describe('analytics', () => {
     const corrected = { ...state, refuels: [{ ...state.refuels[0], category: 'Trabajo' }] };
     expect(buildAnalyticsData(corrected, 'all', 'fuel').category).toEqual([['Trabajo', 30]]);
   });
+
+  it('resta abonos del gasto neto y conserva su origen en el desglose', () => {
+    const withCredit: AppState = { ...state, receipts: [...state.receipts, {
+      id: 'r2', store: 'Ana', date: '2026-08-11', total: -2, createdAt: '', analysisMethod: 'manual',
+      lines: [{ id: 'l2', name: 'Bizum por compra compartida', quantity: 1, unit: 'abono', unitPrice: -2, total: -2, category: 'Alimentación', confidence: 1 }]
+    }] };
+    const data = buildAnalyticsData(withCredit, '2026-08', 'shopping');
+    expect(data).toMatchObject({ total: 3, grossExpense: 5, credits: 2 });
+    expect(data.category).toContainEqual(['Alimentación', 2]);
+    expect(data.stores).toContainEqual(['Ana', -2]);
+    expect(data.products).toContainEqual(['Bizum por compra compartida', -2]);
+  });
 });

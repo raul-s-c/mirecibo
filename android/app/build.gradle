@@ -30,8 +30,8 @@ android {
         applicationId "es.mirecibo.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 27
-        versionName "0.13.1"
+        versionCode 28
+        versionName "0.14.0"
         manifestPlaceholders = [admobAppId: adMobAppId]
         buildConfigField "String", "ADMOB_BANNER_ID", "\"${adMobBannerId}\""
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

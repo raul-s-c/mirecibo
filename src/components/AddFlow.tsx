@@ -32,7 +32,7 @@ export function AddFlow({ open, onClose, initial = 'menu' }: { open: boolean; on
   const [duplicateOverride, setDuplicateOverride] = useState(false);
 
   const resetAndClose = () => { setFlow(initial); setText(''); setItems([]); setReceipt(null); setRefuel(null); setRawOcr(''); setBusy(false); setError(''); setDuplicateOverride(false); onClose(); };
-  const title = ({ menu: 'Añadir', products: 'Añadir productos', 'generate-list': 'Generar lista con IA', ticket: 'Escanear ticket', 'manual-ticket': 'Registrar compra manual', 'ticket-review': 'Revisar ticket', fuel: 'Añadir repostaje', 'fuel-review': 'Revisar repostaje' } as const)[flow];
+  const title = ({ menu: 'Añadir', products: 'Añadir productos', 'generate-list': 'Generar lista con IA', ticket: 'Escanear ticket', 'manual-ticket': 'Registrar movimiento manual', 'ticket-review': 'Revisar ticket', fuel: 'Añadir repostaje', 'fuel-review': 'Revisar repostaje' } as const)[flow];
 
   const interpretProducts = async (value = text) => {
     setBusy(true); setError('');
@@ -82,7 +82,7 @@ export function AddFlow({ open, onClose, initial = 'menu' }: { open: boolean; on
       <button onClick={() => setFlow('products')}><span className="option-icon green"><Mic /></span><span><b>Hablar o escribir</b><small>Añade varios productos a tu lista</small></span></button>
       <button className="ai-option" onClick={() => setFlow('generate-list')}><span className="option-icon violet"><Sparkles /></span><span><b>Generar lista con IA</b><small>Describe una receta o una tarea y revisa la propuesta</small></span></button>
       <button onClick={() => setFlow('ticket')}><span className="option-icon blue"><ScanLine /></span><span><b>Escanear ticket</b><small>Guarda productos, precios y total</small></span></button>
-      <button onClick={() => setFlow('manual-ticket')}><span className="option-icon green"><FilePenLine /></span><span><b>Registrar compra manual</b><small>Anota un gasto aunque no tengas el ticket</small></span></button>
+      <button onClick={() => setFlow('manual-ticket')}><span className="option-icon green"><FilePenLine /></span><span><b>Registrar gasto o abono</b><small>Anota una compra, devolución o Bizum sin ticket</small></span></button>
       <button onClick={() => setFlow('fuel')}><span className="option-icon orange"><Fuel /></span><span><b>Repostaje</b><small>Registra combustible y vehículo</small></span></button>
     </div> : null}
 

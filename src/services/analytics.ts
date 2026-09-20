@@ -21,6 +21,8 @@ export interface ExpenseLine {
 export interface AnalyticsData {
   lines: ExpenseLine[];
   total: number;
+  grossExpense: number;
+  credits: number;
   documentCount: number;
   conceptCount: number;
   category: Array<[ExpenseCategory, number]>;
@@ -88,15 +90,19 @@ export function buildAnalyticsData(state: AppState, month = 'all', kind: Expense
   const aggregate = <K extends string>(key: (line: ExpenseLine) => K) => {
     const values = new Map<K, number>();
     lines.forEach(line => values.set(key(line), roundMoney((values.get(key(line)) ?? 0) + line.amount)));
-    return [...values.entries()].filter(([, value]) => value > 0).sort((a, b) => b[1] - a[1]);
+    return [...values.entries()].filter(([, value]) => Math.abs(value) >= 0.01).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
   };
   const documents = new Set(lines.map(line => `${line.sourceType}:${line.sourceId}`));
   const total = roundMoney(lines.reduce((sum, line) => sum + line.amount, 0));
+  const grossExpense = roundMoney(lines.reduce((sum, line) => line.amount > 0 ? sum + line.amount : sum, 0));
+  const credits = roundMoney(Math.abs(lines.reduce((sum, line) => line.amount < 0 ? sum + line.amount : sum, 0)));
   const months = aggregate(line => line.date.slice(0, 7)).sort((a, b) => a[0].localeCompare(b[0]));
 
   return {
     lines,
     total,
+    grossExpense,
+    credits,
     documentCount: documents.size,
     conceptCount: lines.filter(line => !line.isAdjustment).length,
     category: aggregate(line => line.category),

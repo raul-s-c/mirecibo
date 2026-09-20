@@ -50,7 +50,7 @@ export function Sheet({ open, title, onClose, children, wide = false }: { open: 
 }
 
 export function Segmented<T extends string>({ value, options, onChange }: { value: T; options: Array<{ value: T; label: string; count?: number }>; onChange: (value: T) => void }) {
-  return <div className="segmented" role="tablist">{options.map(option => <button key={option.value} className={value === option.value ? 'active' : ''} onClick={() => onChange(option.value)} role="tab" aria-selected={value === option.value}>{option.label}{option.count === undefined ? '' : ` ${option.count}`}</button>)}</div>;
+  return <div className="segmented" role="tablist">{options.map(option => <button type="button" key={option.value} className={value === option.value ? 'active' : ''} onClick={() => onChange(option.value)} role="tab" aria-selected={value === option.value}>{option.label}{option.count === undefined ? '' : ` ${option.count}`}</button>)}</div>;
 }
 
 export function EmptyState({ icon, title, text, action }: { icon: ReactNode; title: string; text: string; action?: ReactNode }) {

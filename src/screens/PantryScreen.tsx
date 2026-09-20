@@ -64,7 +64,7 @@ export function PantryScreen() {
     const seen = new Set<string>();
     const values: ReceiptSuggestion[] = [];
     [...state.receipts].sort((a, b) => b.date.localeCompare(a.date)).forEach(receipt => receipt.lines.forEach(line => {
-      if (line.lineType && line.lineType !== 'product') return;
+      if (line.total <= 0 || (line.lineType && line.lineType !== 'product')) return;
       const key = `${normalize(line.name)}|${line.unit}`;
       if (!key || seen.has(key)) return;
       seen.add(key); values.push({ key, line, receiptId: receipt.id, store: receipt.store, date: receipt.date });

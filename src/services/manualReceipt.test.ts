@@ -14,4 +14,9 @@ describe('manual receipts', () => {
     expect(receipt.total).toBe(13);
     expect(receipt.lines[0]).toMatchObject({ name: 'Fruta y verdura', total: 13 });
   });
+  it('creates a negative credit without requiring a negative input', () => {
+    const receipt = createManualReceipt({ store: 'Ana', date: '2026-09-20', total: -12.5, category: 'Alimentación' });
+    expect(receipt).toMatchObject({ store: 'Ana', total: -12.5, analysisMethod: 'manual' });
+    expect(receipt.lines[0]).toMatchObject({ name: 'Abono de Ana', unit: 'abono', quantity: 1, unitPrice: -12.5, total: -12.5 });
+  });
 });

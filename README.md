@@ -11,7 +11,7 @@ Aplicación local-first para Android y web que reúne lista de compra, interpret
 - Auditoría de confianza, conciliación con el total y detección de tickets duplicados antes de guardar.
 - OCR local conservado únicamente como herramienta de respaldo y depuración.
 - Revisión editable de establecimiento, fecha, productos, cantidades, importes y total.
-- Registro manual de compras sin ticket físico, con establecimiento, fecha, importe, concepto y categoría.
+- Registro manual de compras sin ticket físico y de abonos/Bizum en negativo, con origen, fecha, importe, concepto y categoría.
 - Historial y detalle de tickets, con búsqueda local por nombre de producto, número de coincidencias y total gastado calculado desde los importes de línea.
 - Cada coincidencia identifica ticket, comercio, fecha, cantidad, precio unitario e importe.
 - Repostajes asociados a vehículos.

@@ -100,7 +100,7 @@ function reducer(state: AppState, action: Action): AppState {
     case 'add-receipt': {
       const normalize = (value: string) => value.toLocaleLowerCase('es').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, ' ').trim();
       const receipt = { ...action.receipt, lines: action.receipt.lines.map(line => ({ ...line, category: categoryName(state, line.category) })) };
-      const purchased = receipt.lines.map(value => normalize(value.name));
+      const purchased = receipt.lines.filter(value => value.total > 0).map(value => normalize(value.name));
       next = {
         ...state,
         receipts: [receipt, ...state.receipts],

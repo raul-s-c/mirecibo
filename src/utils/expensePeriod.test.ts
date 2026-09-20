@@ -16,4 +16,9 @@ describe('expense periods', () => {
   it('returns zero for empty periods', () => {
     expect(expenseSummary(state, 'month', '2024-01', 2024).total).toBe(0);
   });
+  it('uses credits as negative expenses in every period total', () => {
+    const withCredit = { ...state, receipts: [...state.receipts, { date: '2026-01-10', total: -5 } as Receipt] };
+    expect(expenseSummary(withCredit, 'month', '2026-01', 2026)).toMatchObject({ shopping: -5, fuel: 20, total: 15 });
+    expect(expenseSummary(withCredit, 'all', '2026-01', 2026).total).toBe(25);
+  });
 });
