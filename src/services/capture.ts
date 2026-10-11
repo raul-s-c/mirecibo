@@ -11,7 +11,9 @@ function blobToBase64(blob: Blob): Promise<string> {
 
 export async function captureReceipt(): Promise<{ path: string; preview: string; base64: string; mimeType: string }> {
   const photo = await Camera.getPhoto({
-    quality: 88,
+    quality: 82,
+    width: 2560,
+    height: 3840,
     allowEditing: false,
     resultType: CameraResultType.Uri,
     source: CameraSource.Prompt,

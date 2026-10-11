@@ -12,6 +12,17 @@ describe('AI transport', () => {
     expect(response.ok).toBe(true);
     expect(CapacitorHttp.request).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ data: { request: 'Paella' }, headers: { authorization: 'Bearer test' }, readTimeout: 120000 }));
   });
+  it('uses native networking for Android receipt images to avoid WebView CORS failures', async () => {
+    vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true);
+    vi.mocked(CapacitorHttp.request).mockResolvedValue({ status: 200, headers: { 'content-type': 'application/json' }, url: '', data: { data: { items: [] } } });
+    const body = { imageBase64: 'small-compressed-image', mimeType: 'image/jpeg', requestedKind: 'ticket', ocrText: 'MERCADONA' };
+    const response = await aiFetch('https://example.test/v1/receipts/analyze', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Install-Id': 'install-id' }, body: JSON.stringify(body) });
+    expect(response.ok).toBe(true);
+    expect(CapacitorHttp.request).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
+      url: 'https://example.test/v1/receipts/analyze', method: 'POST', data: body,
+      headers: { 'content-type': 'application/json', 'x-install-id': 'install-id' }, connectTimeout: 15000, readTimeout: 120000
+    }));
+  });
   it('preserves HTTP errors and their structured payload', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(Response.json({ error: 'Límite alcanzado' }, { status: 429 })));
     const response = await aiFetch('https://example.test', {});
@@ -21,7 +32,7 @@ describe('AI transport', () => {
   it('does not retry a failed paid operation and explains network failure', async () => {
     const fetchMock = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'));
     vi.stubGlobal('fetch', fetchMock);
-    await expect(aiFetch('https://example.test', {})).rejects.toThrow('No se ha podido conectar');
+    await expect(aiFetch('https://example.test', {})).rejects.toThrow('No se ha podido enviar el ticket');
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

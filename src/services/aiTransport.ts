@@ -4,8 +4,8 @@ import { Capacitor, CapacitorHttp } from '@capacitor/core';
 export async function aiFetch(url: string, init: RequestInit): Promise<Response> {
   try {
     const headers = Object.fromEntries(new Headers(init.headers).entries());
-    // Keep large receipt images off the native JS bridge; text requests use native networking.
-    if (Capacitor.isNativePlatform() && !url.endsWith('/receipts/analyze')) {
+    // Native networking avoids WebView CORS restrictions; receipt images are resized before reaching this bridge.
+    if (Capacitor.isNativePlatform()) {
       const result = await CapacitorHttp.request({
         url, method: init.method ?? 'POST', headers,
         data: typeof init.body === 'string' ? JSON.parse(init.body) : undefined,
@@ -26,6 +26,6 @@ export async function aiFetch(url: string, init: RequestInit): Promise<Response>
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     if (/abort|timeout|timed out/i.test(message)) throw new Error('El servidor de IA ha tardado demasiado. Tu lista no ha cambiado. Puedes volver a intentarlo.');
-    throw new Error('No se ha podido conectar con la IA. Comprueba Internet o prueba con datos móviles en lugar de Wi-Fi. Tu lista no ha cambiado.');
+    throw new Error('No se ha podido enviar el ticket al servicio de análisis. Comprueba la conexión e inténtalo de nuevo. Tu lista no ha cambiado.');
   }
 }
